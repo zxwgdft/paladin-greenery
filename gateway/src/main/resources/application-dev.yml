@@ -1,0 +1,48 @@
+server:
+  port: 8910
+
+spring:
+  application:
+    name: gateway-greenery-${USERNAME}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+  cloud:
+    nacos:
+      server-addr: 172.16.16.120:8848
+    gateway:
+      locator:
+        enabled: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - GET
+              - POST
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+      routes:
+        - predicates:
+            - Path=/sr/authenticate/**
+          uri: lb://${USERNAME}-service-retirement
+        - id: retirement-api
+          predicates:
+            - Path=/sr/v2/api-docs
+          uri: lb://${USERNAME}-service-retirement
+          filters:
+            - StripPrefix=1
+        - predicates:
+            - Path=/sr/**
+          uri: lb://${USERNAME}-service-retirement
+          filters:
+            - name: Auth
+              args:
+                jwtBase64Key: rkoNCPXJT0F8RvqvAcW6F41ygXE7TX8oZqi3FMY5rMHe+Lt0JdLRkWEU1H47RJLfm2mgvVmocs2vPt8m/8td0A==
+
+
+paladin:
+  cors-enabled: true
