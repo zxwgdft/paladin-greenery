@@ -338,7 +338,7 @@
             }
         },
         // 包裹ajax成功回调方法
-        wrapAjaxSuccessCallback: function (callback) {
+        wrapAjaxSuccessCallback: function (callback, failCallback) {
             // 包装Ajax成功回调方法，过滤返回内容
             return function (response) {
                 if (typeof response === 'string') {
@@ -360,7 +360,11 @@
                     } else if (code == 490) {
                         $.validErrorHandler(response);
                     } else {
-                        $.errorMessage(response.message || "操作失败");
+                        if(typeof failCallback === 'function') {
+                            failCallback(response);
+                        } else {
+                            $.errorMessage(response.message || "操作失败");
+                        }
                     }
                 }
             }

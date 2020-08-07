@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author TontoZhou
@@ -20,12 +22,15 @@ public class UploadFileDTO {
     private String id;
 
     @ApiModelProperty("文件名称")
+    @NotEmpty(message = "文件名称不能为空")
     private String fileName;
 
     @ApiModelProperty("客户端文件路径")
+    @NotEmpty(message = "文件客户端地址不能为空")
     private String clientFilePath;
 
     @ApiModelProperty("文件大小")
-    private long fileSize;
+    @NotNull(message = "文件大小不能为空")
+    private Long fileSize;
 
 }

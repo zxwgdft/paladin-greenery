@@ -3,9 +3,7 @@ package com.paladin.vod.config;
 import com.paladin.framework.jwt.SHATokenProvider;
 import com.paladin.framework.jwt.TokenProvider;
 import com.paladin.framework.service.DataContainerManager;
-import com.paladin.framework.service.FileStoreService;
 import com.paladin.framework.service.ServiceSupportManager;
-import com.paladin.framework.service.impl.FtpFileStoreService;
 import com.paladin.framework.spring.SpringBeanHelper;
 import com.paladin.framework.spring.SpringContainerManager;
 import com.paladin.framework.utils.StringUtil;
@@ -13,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * @author TontoZhou
@@ -33,6 +32,25 @@ public class VodConfiguration {
         return tokenProvider;
     }
 
+    /**
+     * 启用异常统一处理
+     *
+     * @return
+     */
+    @Bean
+    public HandlerExceptionResolver getHandlerExceptionResolver() {
+        return new VodHandlerExceptionResolver();
+    }
+
+    /**
+     * 数据容器管理器
+     *
+     * @return
+     */
+    @Bean
+    public DataContainerManager getDataContainerManager() {
+        return new DataContainerManager();
+    }
 
     /**
      * spring bean 获取帮助类
@@ -52,4 +70,8 @@ public class VodConfiguration {
     }
 
 
+    @Bean
+    public SpringContainerManager springContainerManager() {
+        return new SpringContainerManager();
+    }
 }

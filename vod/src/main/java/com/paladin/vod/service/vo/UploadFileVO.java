@@ -32,14 +32,17 @@ public class UploadFileVO {
     @ApiModelProperty("服务端相对路径")
     private String serverRelativePath;
 
+    @ApiModelProperty("后缀")
+    private String suffix;
+
     @ApiModelProperty("文件大小")
-    private long fileSize;
+    private Long fileSize;
 
     @ApiModelProperty("块大小")
-    private int chunkSize;
+    private Integer chunkSize;
 
     @ApiModelProperty("完成块数")
-    private int finishChunk;
+    private Integer finishChunk;
 
     @ApiModelProperty("创建时间")
     private Date createTime;

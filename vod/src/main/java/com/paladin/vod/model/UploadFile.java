@@ -38,6 +38,9 @@ public class UploadFile {
     // 文件名称
     private String fileName;
 
+    // 后缀名
+    private String suffix;
+
     // 客户端文件路径
     private String clientFilePath;
 
@@ -45,13 +48,13 @@ public class UploadFile {
     private String serverRelativePath;
 
     // 文件大小
-    private long fileSize;
+    private Long fileSize;
 
     // 块大小
-    private int chunkSize;
+    private Integer chunkSize;
 
     // 完成块数
-    private int finishChunk;
+    private Integer finishChunk;
 
     // 创建时间
     private Date createTime;

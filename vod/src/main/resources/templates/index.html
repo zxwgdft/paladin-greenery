@@ -1,353 +1,306 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 
 <head>
-    <title>文件上传</title>
+    <title>视频上传</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
-    <link rel="stylesheet" href="/static/assets/bootstrap3/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/static/assets/bootstrap-table/bootstrap-table.min.css"/>
-    <link rel="stylesheet" href="/static/assets/layer/theme/default/layer.css"/>
-    <link rel="stylesheet" href="/static/assets/webuploader/webuploader.css">
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css"/>
     <style type="text/css">
-        .progressTip {
-            padding-left: 30px;
+        .upload-layer {
+            padding: 30px;
+        }
+
+        .upload-btn {
+            text-align: right;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 
-<body>
+<body style="background-color: #f2f2f2;padding-top: 30px">
 
-<div class="container" id="uploader">
-    <section class="content-header">
-        <h1>视频上传
-            <small>（如果需要重新上传视频，请刷新页面）</small>
-        </h1>
-    </section>
-    <section class="content">
-        <div class="row">
-            <h3 id="selectFileName"></h3>
-            <div class="progress">
-                <div id="upload-progress-bar" class="progress-bar progress-bar-primary progress-bar-striped"
-                     role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                     style="width: 0%"></div>
-            </div>
-            <div class="btns">
-                <div id="picker">选择视频文件</div>
-                <button id="startBtn" class="btn btn-success">开始上传</button>
-                <button id="cancelBtn" class="btn btn-danger">取消上传</button>
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div id="result" class="box-body">
-                <table id="dataGrid"></table>
-                <div id="toolbar">
-                    <div class="btn-group">
+<div class="layui-container">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab layui-tab-brief" lay-filter="component-tabs-brief">
+                        <ul class="layui-tab-title">
+                            <li class="layui-this">视频列表</li>
+                            <li>视频上传</li>
+                        </ul>
+                        <div class="layui-tab-content">
+                            <div class="layui-tab-item layui-show">
+                                <table id="completedTable"></table>
+                            </div>
+                            <div class="layui-tab-item">
+                                <div style="text-align: right">
+                                    <button onclick="openUpload()" class="layui-btn"><i class="layui-icon">&#xe67c;</i>开始上传
+                                    </button>
+                                </div>
+                                <table id="uploadTable" lay-filter="upload-table"></table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <input type="hidden" id="servletUrl" th:value="${servletUrl}"/>
-    <input type="hidden" id="accessKey" th:value="${accessKey}"/>
+    </div>
 </div>
+
 
 <!--引入JS-->
 <script type="text/javascript" src="/static/assets/jquery/jquery-2.2.4.min.js"></script>
-<script type="text/javascript" src="/static/assets/bootstrap3/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/assets/bootstrap-table/bootstrap-table.min.js"></script>
-<script type="text/javascript" src="/static/assets/layer/layer.js"></script>
-<script type="text/javascript" src="/static/assets/webuploader/webuploader.min.js"></script>
-
+<script type="text/javascript" src="/static/assets/layui/layui.all.js"></script>
 <script type="text/javascript" src="/static/js/common.js"></script>
 
+<script type="text/html" id="uploadBtnBar">
+    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="upload">上传</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
 
 <script type="text/javascript">
-    var table;
-    $(function () {
-        initDataGrid();
-    });
 
-    function initDataGrid() {
-        $("#dataGrid").bootstrapTable({
-            idField: "id",
-            columns: [
-                [{
-                    title: "文件名称",
-                    field: "name",
-                    align: "left",
-                    formatter: function (value, row, index) {
-                        return "/" + value.replace(/\\/g, "/").substring(1);
-                    }
-                },
+    $(function () {
+        layui.table.render({
+            id: 'completedTable',
+            elem: '#completedTable',
+            url: '/vod/upload/find/completed/page',
+            page: true,
+            cols: [
+                [
+                    {field: 'fileName', title: '用户名'},
                     {
-                        title: "文件创建时间",
-                        field: "lastUpdateTime",
-                        formatter: "date"
-                    },
-                    {
-                        title: "文件大小",
-                        field: "size",
-                        formatter: function (value, row, index) {
-                            return value ? (value / 1024 / 1024).toFixed(2) + "M" : "-";
+                        field: 'id', title: 'URL', templet: function (row) {
+                            return 'http://192.168.31.108/' + row.id + row.suffix;
                         }
                     },
                     {
-                        title: "操作",
-                        align: "center",
-                        width: "100px",
-                        events: {
-                            'click .remove': function (e, value, row, index) {
-                                remove(row);
-                            }
-                        },
-                        formatter: function operateFormatter(value, row, index) {
-                            var html = '<button class="remove btn btn-xs btn-danger"><i class="glyphicon glyphicon-remove"></i>删除</button>';
-                            return html;
+                        field: 'fileSize', title: '文件大小', width: 100, align: 'center', templet: function (row) {
+                            return Math.round(row.fileSize / (1024 * 1024)) + "M";
                         }
-                    }
+                    },
+                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'}
                 ]
             ],
-            url: '/vod/upload/find/file',
-            responseHandler: function (res) {
-                res = res || [];
-                if ($.isArray(res)) {
-                    var x = {};
-                    x["data"] = res;
-                    x["total"] = res.length;
-                    return x;
-                } else {
-                    return res;
-                }
-            },
-            pagination: false
+            parseData: function (res) { //res 即为原始返回的数据
+                var data = res.data;
+                return {
+                    "code": res.code == 200 ? 0 : res.code, //解析接口状态
+                    "msg": res.message, //解析提示文本
+                    "count": data ? data.total : 0, //解析数据长度
+                    "data": data ? data.data : [] //解析数据列表
+                };
+            }
         });
 
-
-        table = $("#dataGrid").data('bootstrap.table')
-    }
-
-    function remove(row) {
-        if (row) {
-            layer.confirm('确定删除文件吗?', function () {
-                $.getAjax(encodeURI('/vod/upload/delete/file?relativePath=' + row.relativePath), function () {
-                    $.successMessage("删除成功");
-                    table.refresh();
-                });
-            });
-        }
-    }
-
-    var chunkSize = 5 * 1024 * 1024;
-    var curTitle, curPercentage, $progressBar, $progress;
-
-    // HOOK 这个必须要再uploader实例化前面
-    WebUploader.Uploader.register({
-        'before-send-file': 'beforeSendFile',
-        'before-send': 'beforeSend'
-    }, {
-        beforeSendFile: function (file, a) {
-            // Deferred对象在钩子回掉函数中经常要用到，用来处理需要等待的异步操作。
-            var task = new $.Deferred();
-            // 根据文件内容来查询MD5
-            uploader.md5File(file).progress(function (percentage) { // 及时显示进度
-                getProgressBar(file, percentage, "MD5");
-            }).then(function (val) { // 完成
-                file.md5 = val;
-                // 进行md5判断
-                $.postAjax("/vod/upload/check", {
-                        md5: file.md5,
-                        chunks: Math.ceil(file.size / chunkSize),
-                        name: file.name
-                    },
-                    function (data) {
-                        var status = data.status;
-                        task.resolve();
-                        if (status == 2) {
-                            // 异常
-                            layer.msg("上传文件异常", {icon: 5});
-                            uploader.skipFile(file);
-                            file.pass = false;
-                        } else if (status == 9) {
-                            // 忽略上传过程，直接标识上传成功；
-                            uploader.skipFile(file);
-                            file.pass = true;
-                        } else if (status == 1) {
-                            // 部分已经上传到服务器了，但是差几个模块。
-                            file.completedChunks = data.result;
+        layui.table.render({
+            id: 'uploadTable',
+            elem: '#uploadTable',
+            url: '/vod/upload/find/uploading',
+            page: false,
+            cols: [
+                [
+                    {field: 'fileName', title: '用户名'},
+                    {
+                        field: 'fileSize', title: '上传进度', width: 160, align: 'center', templet: function (row) {
+                            return Math.round(row.finishChunk * row.chunkSize * 1024 * 102400 / row.fileSize) + '%';
                         }
-                    });
-            });
-
-            return $.when(task);
-        },
-        beforeSend: function (block) {
-            var task = new $.Deferred(),
-                file = block.file,
-                completedChunks = file.completedChunks,
-                blockChunk = block.chunk,
-                flag = true;
-
-            if (completedChunks) {
-                for (var i = 0; i < completedChunks.length; i++) {
-                    if (blockChunk == completedChunks[i]) {
-                        flag = false;
-                        break;
+                    },
+                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'},
+                    {width: 165, align: 'center', toolbar: '#uploadBtnBar'}
+                ]
+            ],
+            parseData: function (res) { //res 即为原始返回的数据
+                if (res.success == true) {
+                    return {
+                        code: 0,
+                        data: res.data
                     }
+                } else {
+                    $.errorMessage(res.message);
+                    return [];
                 }
             }
+        });
 
-            if (flag) {
-                task.resolve();
-            } else {
-                task.reject();
+        layui.table.on('tool(upload-table)', function (obj) {
+            var data = obj.data, layEvent = obj.event;
+            if (layEvent === 'upload') {
+                openUpload(data.id, data.fileName, data.fileSize);
+            } else if (layEvent === 'del') {
+                layer.confirm('确定删除么', function (index) {
+                    $.postAjax("/vod/upload/delete", {id: data.id}, function () {
+                        layui.table.reload("uploadTable");
+                    });
+                    layer.close(index);
+                });
             }
-            return $.when(task);
-        }
+        });
     });
 
-    // 实例化
-    var uploader = WebUploader.create({
-        pick: {
-            id: '#picker',
-            label: '选择视频文件'
-        },
-        //dnd: '#dndArea',
-        //paste: '#uploader',
-        swf: '/static/assets/webuploader/Uploader.swf',
-        chunked: true,
-        chunkSize: chunkSize, // 字节 1M分块
-        threads: 3,
-        server: '/vod/upload/chunk',
-        auto: false,
-        duplicate: true,
-        // 禁掉全局的拖拽功能。这样不会出现图片拖进页面的时候，把图片打开。
-        disableGlobalDnd: true,
-        fileNumLimit: 1,
-        fileSizeLimit: 10 * 1024 * 1024 * 1024,
-        fileSingleSizeLimit: 10 * 1024 * 1024 * 1024,
-        // accept: {
-        //     title: 'Video',
-        //     extensions: 'avi,mov,rmvb,rm,flv,mp4,3gp',
-        //     mimeTypes: 'video/*'
-        // }
-    });
+    function openUpload(id, fileName, fileSize) {
+        var isNew = id ? false : true;
+        $.openPageLayer(layerContent, {
+            title: '上传视频',
+            width: 550,
+            height: 300,
+            success: function () {
+                if (isNew) {
+                    $("#fileName").text("请选择上传文件");
+                } else {
+                    $("#fileName").text("请选择上传文件：" + fileName + "");
+                }
 
-    // 当有文件被添加进队列的时候
-    uploader.on('fileQueued', function (file) {
-        $("#selectFileName").html(file.name + '<small class="progressTip" id="progress-status"></small>');
-        $progressBar = $('#upload-progress-bar');
-        $progress = $('#progress-status');
-        $progressBar.css('width', "0%");
-    });
+                $("#fileInput").change(function () {
+                    var dom = $(this)[0];
+                    if (dom.files.length > 0) {
+                        $("#fileName").text(dom.files[0].name);
+                        $("#progressSlogan").text("准备开始上传");
+                    }
+                });
 
-    //当某个文件的分块在发送前触发，主要用来询问是否要添加附带参数，大文件在开起分片上传的前提下此事件可能会触发多次。
-    uploader.onUploadBeforeSend = function (obj, data) {
-        var file = obj.file;
-        data.md5 = file.md5;
-        data.chunkSize = chunkSize;
-    };
+                $("#checkBtn").click(function () {
+                    $("#fileInput").click();
+                });
 
-    // 上传中
-    uploader.on('uploadProgress', function (file, percentage) {
-        getProgressBar(file, percentage, "UPLOAD");
-    });
+                $("#startBtn").click(function () {
+                    var f = $("#fileInput")[0];
+                    if (f.files.length > 0) {
+                        var file = f.files[0];
 
-    // 上传返回结果
-    uploader.on('uploadSuccess', function (file) {
-        //getProgressBar(file, percentage, "UPLOAD-SUCCESS");
-    });
+                        if (!isNew && file.size != fileSize) {
+                            $.errorMessage("您选择续传的文件与原上传文件大小不一致，请确认是否原文件");
+                            return;
+                        }
 
-    uploader.on('uploadError', errorHandle);
-    uploader.on('uploadComplete', completedHandle);
-
-
-    uploader.on('uploadAccept', function (file, response) {
-        if (response.status && response.status == 1) {
-            var result = response.result;
-            if (result == 1) {
-                return true;
+                        if (isNew) {
+                            $.postAjax("/vod/upload/create", {
+                                fileName: file.name,
+                                clientFilePath: file.name,
+                                fileSize: file.size
+                            }, function (data) {
+                                if (data.status == 1) {
+                                    new _Uploader(file, data).uploadChunk();
+                                } else {
+                                    $.infoMessage("上传文件结束");
+                                }
+                            });
+                        } else {
+                            $.postAjax("/vod/upload/continue", {
+                                id: id
+                            }, function (data) {
+                                if (data.status == 1) {
+                                    new _Uploader(file, data).uploadChunk();
+                                } else {
+                                    $.infoMessage("上传文件结束");
+                                }
+                            });
+                        }
+                    } else {
+                        $.errorMessage("请选择上传文件");
+                    }
+                });
             }
-
-            if (result == 9) {
-                uploader.stop(true);
-                completedHandle(file);
-                return true;
-            }
-
-            if (result == 8) {
-                uploader.stop(true);
-                errorHandle(file);
-                return true;
-            }
-        }
-        return false;
-    });
-
-    // 文件上传
-    $("#startBtn").on('click', function () {
-        uploader.upload();
-    });
-
-    $("#cancelBtn").click(function () {
-        uploader.stop(true);
-        uploader.reset();
-        clear();
-    });
-
-    function clear() {
-        $("#selectFileName").html('');
-        $progressBar = $('#upload-progress-bar');
-        $progress = $('#progress-status');
-        $progressBar.css('width', "0%");
+        });
     }
 
-    function completedHandle(file) {
-        getProgressBar(file, 100, "UPLOAD-SUCCESS");
-        uploader.reset();
-        table.refresh();
+    var _Uploader = function (file, options) {
+        var that = this;
+        that.file = file;
+        that.fileSize = file.size;
+        that.uploadId = options.id;
+        that.chunkSize = options.chunkSize;
+        that.currentChunk = options.currentChunk;
+        that.chunkCount = Math.ceil(that.fileSize / that.chunkSize);
+        that.status = 1;
+        that.updateProgress();
     }
 
-    function errorHandle(file) {
-        getProgressBar(file, 100, "UPLOAD-FAIL");
-        uploader.reset();
+    _Uploader.prototype.uploadChunk = function () {
+        var that = this;
+
+        if (that.status != 1) {
+            return;
+        }
+
+        var start = that.currentChunk * that.chunkSize,
+            end = Math.min(that.fileSize, start + that.chunkSize);
+
+        var form = new FormData();
+        form.append("id", that.uploadId);
+        form.append("file", that.file.slice(start, end));  //slice方法用于切出文件的一部分
+        form.append("chunk", that.currentChunk);
+
+        //Ajax提交
+        $.ajax({
+            url: "/vod/upload/chunk",
+            type: "POST",
+            data: form,
+            async: true,        //异步
+            processData: false,  //jquery不要对form进行处理
+            contentType: false,  //指定为false才能形成正确的Content-Type
+            success: function (response) {
+                if (response.success == true) {
+                    var data = response.data;
+                    var status = data.status;
+                    if (status == 1) {
+                        that.status = 1;
+                        that.currentChunk = data.currentChunk;
+                        that.uploadChunk();
+                    } else {
+                        that.status = 2;
+                        $.successMessage("上传完成");
+                        layui.table.reload("completedTable");
+                    }
+                } else {
+                    that.status = 3
+                    $.errorMessage("上传异常");
+                    layui.table.reload("completedTable");
+                    layui.table.reload("uploadTable");
+                }
+                that.updateProgress();
+            }
+        });
     }
 
-    function getProgressBar(file, percentage, type) {
-        var progressPercentage,
-            title,
-            titleClass;
+    _Uploader.prototype.updateProgress = function () {
+        var status = this.status;
+        if (status == 1) {
+            var progressPercentage = Math.round(this.currentChunk / this.chunkCount * 100);
+            layui.element.progress("upload-progress", progressPercentage + "%");
+        } else if (status == 2) {
+            layui.element.progress("upload-progress", "100%");
+        } else {
 
-        if (type == 'MD5') {
-            progressPercentage = parseInt(percentage * 20);
-            title = "计算MD5";
-            titleClass = ""
-        } else if (type == 'UPLOAD-SUCCESS') {
-            progressPercentage = 100;
-            title = "上传成功";
-        } else if (type == 'UPLOAD') {
-            progressPercentage = parseInt(percentage * 80) + 20;
-            title = "上传文件";
-        } else if (type == 'UPLOAD-FAIL') {
-            progressPercentage = percentage || curPercentage;
-            title = "上传失败";
-        }
-
-        if (curTitle !== title || curPercentage !== progressPercentage) {
-            curTitle = title;
-            $progress.html(title + ':' + progressPercentage + "%");
-        }
-
-        if (curPercentage !== progressPercentage) {
-            curPercentage = progressPercentage;
-            $progressBar.css('width', progressPercentage + "%");
         }
     }
+
+
+    var layerContent = '    <div class="upload-layer">\n' +
+        '        <div class="layui-row">\n' +
+        '            <div class="layui-col-md8">\n' +
+        '                <h3 id="fileName">\n' +
+        '                </h3>\n' +
+        '            </div>\n' +
+        '            <div class="layui-col-md4 upload-btn">\n' +
+        '                <input type="file" id="fileInput" style="display: none"/>\n' +
+        '                <button id="checkBtn" class="layui-btn layui-btn-normal layui-btn-sm">选择文件</button>\n' +
+        '                <button id="startBtn" class="layui-btn layui-btn-sm">开始上传</button>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '        <div class="layui-row">\n' +
+        '            <div class="layui-col-md12">\n' +
+        '                <div class="layui-progress layui-progress-big" lay-showpercent="yes" lay-filter="upload-progress">\n' +
+        '                    <div class="layui-progress-bar" lay-percent="0%"></div>\n' +
+        '                </div>\n' +
+        '            </div>\n' +
+        '        </div>\n' +
+        '    </div>';
+
 </script>
 </body>
 

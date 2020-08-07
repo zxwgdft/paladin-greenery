@@ -2,7 +2,7 @@ logging:
   level:
     com:
       paladin:
-        retirement:
+        vod:
           mapper: DEBUG
 
 server:
@@ -40,6 +40,8 @@ spring:
     password: ''
     port: 6379
     timeout: 1000
+  thymeleaf:
+    cache: false
 
 # jwt 相关配置，超时时间会被覆盖
 jwt:

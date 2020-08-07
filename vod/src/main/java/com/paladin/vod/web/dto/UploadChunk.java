@@ -1,17 +1,19 @@
-package com.paladin.vod.web;
+package com.paladin.vod.web.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * @author TontoZhou
+ * @since 2020/8/6
+ */
 @Getter
 @Setter
-public class WebUploadParam {
+public class UploadChunk {
 
-    private String md5;
+    private String id;
     private int chunk;
-    private int chunks;
     private MultipartFile file;
-    private String name;
 
 }
