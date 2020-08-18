@@ -60,4 +60,9 @@ public class SHATokenProvider implements TokenProvider {
     public void setTokenExpireMilliseconds(long tokenExpireMilliseconds) {
         this.tokenExpireMilliseconds = tokenExpireMilliseconds;
     }
+
+    @Override
+    public long getExpireMilliseconds() {
+        return this.tokenExpireMilliseconds;
+    }
 }

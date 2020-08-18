@@ -286,6 +286,19 @@
     // --------------------------------------
 
     $.extend({
+        setToken: function (token) {
+            $(document).data("jwt", token);
+            // 定时刷新
+            setTimeout($.refreshToken, 3000000);
+        },
+        getToken: function () {
+            return $(document).data("jwt");
+        },
+        refreshToken: function () {
+            $.getAjax("/vod/auth/jwt", function (openToken) {
+                $.setToken(openToken.accessToken);
+            });
+        },
         // 参数传递校验错误返回通用处理
         validErrorHandler: function (response) {
             var errorHtml, error = response.data;
@@ -310,9 +323,10 @@
         ajaxUnLoginHandler: function () {
             // ajax请求返回未登录状态处理
             // 暂时跳转主页面到登录页面，有时间可以做弹出登录窗口登录，成功后继续执行ajax请求处理
-            $.failAlert("请先登录", function () {
-                top.location.href = "/";
-            })
+            // $.failAlert("请先登录", function () {
+            //     top.location.href = "/";
+            // })
+            $.errorMessage("请先认证登录");
         },
         // ajax返回状态处理
         ajaxResponseCheck: function (response) {
@@ -360,7 +374,7 @@
                     } else if (code == 490) {
                         $.validErrorHandler(response);
                     } else {
-                        if(typeof failCallback === 'function') {
+                        if (typeof failCallback === 'function') {
                             failCallback(response);
                         } else {
                             $.errorMessage(response.message || "操作失败");
@@ -373,6 +387,10 @@
         sendAjax: function (options) {
             // 发送ajax请求 对应$.ajax()
             options.success = $.wrapAjaxSuccessCallback(options.success);
+
+            var headers = options.headers || {};
+            headers['Authorization'] = $.getToken();
+            options.headers = headers;
 
             if (options.submitBtn) {
                 var originComplete = options.complete;

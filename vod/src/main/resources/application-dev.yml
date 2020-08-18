@@ -20,11 +20,9 @@ spring:
       server-addr: 172.16.16.120:8848
   datasource:
     name: vod
-#    url: jdbc:mysql://172.16.16.120:3306/vod?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
-#    username: netin
-#    password: 123456
-    url: jdbc:mysql://localhost:3306/vod?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
-    username: root
+    url: jdbc:mysql://172.16.16.120:3306/vod?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: netin
+    password: 123456
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 15
@@ -46,7 +44,6 @@ spring:
 # jwt 相关配置，超时时间会被覆盖
 jwt:
   key: rkoNCPXJT0F8RvqvAcW6F41ygXE7TX8oZqi3FMY5rMHe+Lt0JdLRkWEU1H47RJLfm2mgvVmocs2vPt8m/8td0A==
-  issuer: vod
   expire-millisecond: 3600000
 
 ribbon:

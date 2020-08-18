@@ -65,11 +65,22 @@
 <script type="text/javascript">
 
     $(function () {
+        var token = $.getUrlVariable("token");
+        if (token) {
+            $.setToken(token);
+            init();
+        } else {
+            $.errorMessage("请先登录系统");
+        }
+    });
+
+    function init() {
         layui.table.render({
             id: 'completedTable',
             elem: '#completedTable',
             url: '/vod/upload/find/completed/page',
             page: true,
+            headers: {'Authorization': $.getToken()},
             cols: [
                 [
                     {field: 'fileName', title: '用户名'},
@@ -101,6 +112,7 @@
             id: 'uploadTable',
             elem: '#uploadTable',
             url: '/vod/upload/find/uploading',
+            headers: {'Authorization': $.getToken()},
             page: false,
             cols: [
                 [
@@ -140,7 +152,7 @@
                 });
             }
         });
-    });
+    }
 
     function openUpload(id, fileName, fileSize) {
         var isNew = id ? false : true;

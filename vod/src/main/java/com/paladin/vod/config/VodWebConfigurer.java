@@ -2,9 +2,11 @@ package com.paladin.vod.config;
 
 import com.paladin.framework.spring.web.DateFormatter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -15,6 +17,8 @@ import java.util.Date;
 @Configuration
 public class VodWebConfigurer implements WebMvcConfigurer {
 
+    @Autowired
+    private WebSecurityManager webSecurityManager;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -46,5 +50,10 @@ public class VodWebConfigurer implements WebMvcConfigurer {
         //registry.addConverterFactory(new String2EnumConverterFactory());
     }
 
-
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(webSecurityManager)
+                .addPathPatterns("/vod/**")
+                .excludePathPatterns("/vod/upload/index");
+    }
 }

@@ -19,4 +19,7 @@ public interface TokenProvider {
 
     Claims parseJWT(String jwtToken);
 
+    long getExpireMilliseconds();
+
+
 }

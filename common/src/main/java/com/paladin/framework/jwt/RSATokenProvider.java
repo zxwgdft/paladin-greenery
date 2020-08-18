@@ -83,4 +83,9 @@ public class RSATokenProvider implements TokenProvider {
     public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
+
+    @Override
+    public long getExpireMilliseconds() {
+        return this.tokenExpireMilliseconds;
+    }
 }
