@@ -7,6 +7,7 @@ import com.paladin.framework.service.QueryType;
 import com.paladin.framework.service.ServiceSupport;
 import com.paladin.framework.utils.UUIDUtil;
 import com.paladin.framework.utils.convert.DateFormatUtil;
+import com.paladin.vod.config.WebSecurityManager;
 import com.paladin.vod.mapper.UploadFileMapper;
 import com.paladin.vod.model.UploadFile;
 import com.paladin.vod.service.dto.UploadFileDTO;
@@ -23,10 +24,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +47,9 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
     @Autowired
     private UploadFileMapper uploadFileMapper;
 
+    @Autowired
+    private VideoService videoService;
+
     private Map<String, FileUploader> fileUploaderMap = new ConcurrentHashMap<>();
 
     @PostConstruct
@@ -61,10 +62,13 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
         Path root = Paths.get(targetFolder);
         try {
             Files.createDirectories(root);
-            log.info("大文件存放目录：" + targetFolder);
+            log.info("视频存放目录：" + targetFolder);
         } catch (Exception e) {
-            log.error("创建大文件存放目录异常[" + targetFolder + "]", e);
+            log.error("创建视频存放目录异常[" + targetFolder + "]", e);
         }
+
+        // 启动时候检查一次需要转码的视频
+        checkTranscodeVideo();
 
         // 定时清理任务
         Executors.newSingleThreadScheduledExecutor((runnable) -> {
@@ -75,8 +79,32 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
         }).scheduleWithFixedDelay(() -> cleanUploader(), 120, 120, TimeUnit.SECONDS);
     }
 
+    public void checkTranscodeVideo() {
+        List<UploadFile> list = searchAll(
+                new Condition(UploadFile.FIELD_STATUS, QueryType.EQUAL, UploadFile.STATUS_COMPLETED),
+                new Condition(UploadFile.FIELD_TRANSCODE_STATUS, QueryType.EQUAL, UploadFile.TRANSCODE_STATUS_NONE)
+        );
+        for (UploadFile uploadFile : list) {
+            videoService.put2transcode(uploadFile);
+        }
+    }
+
+
     private String getCurrentUserId() {
-        return "TontoZhou";
+        return WebSecurityManager.getCurrentUser();
+    }
+
+    private static HashSet<String> videoSuffixSet = new HashSet<>();
+
+    static {
+        // 原理上这只是容器，是否ffmpeg支持转换需要查看音频、视频具体编码（例如h264等）
+        videoSuffixSet.add(".mp4");
+        videoSuffixSet.add(".avi");
+        videoSuffixSet.add(".wmv");
+        videoSuffixSet.add(".mpeg");
+        videoSuffixSet.add(".mov");
+        videoSuffixSet.add(".rmvb");
+        videoSuffixSet.add(".flv");
     }
 
     /**
@@ -99,6 +127,11 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
         int i = fileName.lastIndexOf(".");
         String suffix = i > 0 ? fileName.substring(i) : "";
 
+        suffix = suffix.toLowerCase();
+        if (!videoSuffixSet.contains(suffix)) {
+            throw new BusinessException("只支持格式为" + videoSuffixSet.toString() + "的视频上传");
+        }
+
         uploadFile.setSuffix(suffix);
 
         String relativePath = DateFormatUtil.getThreadSafeFormat("yyyyMMdd").format(now) + "/";
@@ -110,6 +143,7 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
         uploadFile.setCreateTime(now);
         uploadFile.setUpdateTime(now);
         uploadFile.setStatus(UploadFile.STATUS_UPLOADING);
+        uploadFile.setTranscodeStatus(UploadFile.TRANSCODE_STATUS_NONE);
 
         save(uploadFile);
 
@@ -260,7 +294,9 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
 
     @Override
     public void completedSuccess(FileUploader uploader) {
+        // 放入视频转换队列
         uploadFileMapper.updateStatus(uploader.getId(), UploadFile.STATUS_COMPLETED);
+        videoService.put2transcode(get(uploader.getId()));
     }
 
     @Override

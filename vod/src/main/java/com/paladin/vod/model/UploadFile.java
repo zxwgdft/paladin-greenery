@@ -26,7 +26,17 @@ public class UploadFile {
     // 删除文件成功
     public static final int STATUS_DELETED = 9;
 
+
+    // 未转码
+    public static final int TRANSCODE_STATUS_NONE = 1;
+    // 转码成功
+    public static final int TRANSCODE_STATUS_SUCCESS = 2;
+    // 转码失败
+    public static final int TRANSCODE_STATUS_ERROR = 3;
+
+
     public static final String FIELD_STATUS = "status";
+    public static final String FIELD_TRANSCODE_STATUS = "transcodeStatus";
     public static final String FIELD_USER_ID = "userId";
 
     @Id
@@ -64,4 +74,7 @@ public class UploadFile {
 
     // 状态
     private Integer status;
+
+    // 转码状态
+    private Integer transcodeStatus;
 }

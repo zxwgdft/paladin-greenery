@@ -26,5 +26,9 @@ public interface UploadFileMapper extends CustomMapper<UploadFile> {
     @Select("SELECT id, server_relative_path AS serverRelativePath, suffix FROM upload_file WHERE `status` = 3")
     List<UploadFile> findErrorUploadFile();
 
+    @Update("UPDATE upload_file SET `transcode_status` = #{status} WHERE id = #{id}")
+    int updateTranscodeStatus(@Param("id") String id, @Param("status") int status);
 
+    @Select("SELECT transcode_status FROM upload_file WHERE id = #{id}")
+    int getTranscodeStatus(@Param("id") String id);
 }

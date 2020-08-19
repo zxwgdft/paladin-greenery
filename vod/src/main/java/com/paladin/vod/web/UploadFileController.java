@@ -31,6 +31,8 @@ public class UploadFileController {
     @PostMapping("/create")
     @ResponseBody
     public R beginUpload(@Valid UploadFileDTO uploadFileDTO) {
+
+
         UploadFile uploadFile = uploadFileService.createUploadFile(uploadFileDTO);
         FileUploader uploader = uploadFileService.getOrCreateUploader(uploadFile.getId());
         return R.success(getUploadStatus(uploader));

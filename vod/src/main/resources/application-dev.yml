@@ -52,5 +52,8 @@ ribbon:
 
 
 vod:
+  ffmpeg: E:/ffmpeg/bin/ffmpeg.exe
   upload:
     folder: E:/upload/
+  transcode:
+    folder: E:/transcode/

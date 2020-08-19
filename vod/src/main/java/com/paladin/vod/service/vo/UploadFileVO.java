@@ -53,4 +53,7 @@ public class UploadFileVO {
     @ApiModelProperty("状态")
     private Integer status;
 
+    @ApiModelProperty("转码状态")
+    private Integer transcodeStatus;
 }
+
