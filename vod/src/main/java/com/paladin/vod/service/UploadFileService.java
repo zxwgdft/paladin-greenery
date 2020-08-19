@@ -5,6 +5,7 @@ import com.paladin.framework.service.Condition;
 import com.paladin.framework.service.PageResult;
 import com.paladin.framework.service.QueryType;
 import com.paladin.framework.service.ServiceSupport;
+import com.paladin.framework.spring.SpringContainer;
 import com.paladin.framework.utils.UUIDUtil;
 import com.paladin.framework.utils.convert.DateFormatUtil;
 import com.paladin.vod.config.WebSecurityManager;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class UploadFileService extends ServiceSupport<UploadFile> implements FileUploader.FileUploadListener {
+public class UploadFileService extends ServiceSupport<UploadFile> implements SpringContainer, FileUploader.FileUploadListener {
 
 
     @Value("${vod.upload.chuck-size:5}")
@@ -52,8 +52,8 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
 
     private Map<String, FileUploader> fileUploaderMap = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    private void initialize() {
+    // 项目启动后执行
+    public boolean afterInitialize() {
         if (!targetFolder.endsWith("/")) {
             targetFolder += "/";
         }
@@ -67,8 +67,6 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
             log.error("创建视频存放目录异常[" + targetFolder + "]", e);
         }
 
-        // 启动时候检查一次需要转码的视频
-        checkTranscodeVideo();
 
         // 定时清理任务
         Executors.newSingleThreadScheduledExecutor((runnable) -> {
@@ -77,18 +75,19 @@ public class UploadFileService extends ServiceSupport<UploadFile> implements Fil
             thread.setName("cleanUploader");
             return thread;
         }).scheduleWithFixedDelay(() -> cleanUploader(), 120, 120, TimeUnit.SECONDS);
-    }
 
-    public void checkTranscodeVideo() {
+        // 启动时候检查一次需要转码的视频
         List<UploadFile> list = searchAll(
                 new Condition(UploadFile.FIELD_STATUS, QueryType.EQUAL, UploadFile.STATUS_COMPLETED),
                 new Condition(UploadFile.FIELD_TRANSCODE_STATUS, QueryType.EQUAL, UploadFile.TRANSCODE_STATUS_NONE)
         );
+
         for (UploadFile uploadFile : list) {
             videoService.put2transcode(uploadFile);
         }
-    }
 
+        return true;
+    }
 
     private String getCurrentUserId() {
         return WebSecurityManager.getCurrentUser();

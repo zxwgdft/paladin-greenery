@@ -90,11 +90,12 @@ public class FileUploader {
         }
 
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(filePath, "rw")) {
+            long offset = currentChunk * chunkSize;
+            randomAccessFile.seek(offset);
+
             byte[] buffer = new byte[4096];
             int n = 0;
             while (-1 != (n = inputStream.read(buffer))) {
-                long offset = currentChunk * chunkSize;
-                randomAccessFile.seek(offset);
                 randomAccessFile.write(buffer, 0, n);
             }
 

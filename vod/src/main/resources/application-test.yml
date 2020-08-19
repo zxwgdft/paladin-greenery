@@ -1,16 +1,13 @@
 logging:
-  level:
-    com:
-      paladin:
-        vod:
-          mapper: DEBUG
+  file:
+    name: logs/vod-logging.log
 
 server:
-  port: 9010
+  port: 9998
 
 spring:
   application:
-    name: service-vod-${USERNAME}
+    name: service-vod
   servlet:
     multipart:
       max-file-size: 10MB
@@ -49,8 +46,8 @@ ribbon:
 
 
 vod:
-  ffmpeg: E:/ffmpeg/bin/ffmpeg.exe
+  ffmpeg: ffmpeg
   upload:
-    folder: E:/upload/
+    folder: /usr/local/vod/upload/
   transcode:
-    folder: E:/transcode/
+    folder: /usr/local/nginx/video/

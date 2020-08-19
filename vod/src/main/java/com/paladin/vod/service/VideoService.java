@@ -93,6 +93,8 @@ public class VideoService {
             return;
         }
 
+        log.info("开始转换视频[ID:" + id + "]");
+
         String videoPath = targetFolder + uploadFile.getServerRelativePath() + id + uploadFile.getSuffix();
         try {
             if (Files.exists(Paths.get(videoPath))) {
@@ -125,13 +127,20 @@ public class VideoService {
 
                 runCommand(command);
 
-                uploadFileMapper.updateTranscodeStatus(id, UploadFile.TRANSCODE_STATUS_SUCCESS);
-                log.info("转换视频[" + outPath + "]成功");
+                if (Files.exists(out)) {
+                    uploadFileMapper.updateTranscodeStatus(id, UploadFile.TRANSCODE_STATUS_SUCCESS);
+                    log.info("转换视频[" + outPath + "]成功");
+
+                } else {
+                    uploadFileMapper.updateTranscodeStatus(id, UploadFile.TRANSCODE_STATUS_ERROR);
+                    log.info("转换视频[" + outPath + "]失败");
+                }
+
             } else {
                 throw new BusinessException("文件[" + videoPath + "]不存在");
             }
         } catch (Exception e) {
-            log.error("转换视频[" + id + "]编码异常", e);
+            log.error("转换视频[ID:" + id + "]编码异常", e);
             uploadFileMapper.updateTranscodeStatus(id, UploadFile.TRANSCODE_STATUS_ERROR);
         }
     }

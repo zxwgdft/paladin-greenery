@@ -94,7 +94,13 @@
                             return Math.round(row.fileSize / (1024 * 1024)) + "M";
                         }
                     },
-                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'}
+                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'},
+                    {
+                        field: 'transcodeStatus', title: '视频转码状态', width: 120, align: 'center', templet: function (row) {
+                            var s = row.transcodeStatus;
+                            return s == 1 ? '视频转码中...' : (s == 2 ? '视频转码成功' : '视频转码失败');
+                        }
+                    },
                 ]
             ],
             parseData: function (res) { //res 即为原始返回的数据
@@ -251,6 +257,9 @@
         $.ajax({
             url: "/vod/upload/chunk",
             type: "POST",
+            headers: {
+                'Authorization': $.getToken()
+            },
             data: form,
             async: true,        //异步
             processData: false,  //jquery不要对form进行处理
