@@ -1,5 +1,5 @@
 server:
-  port: 8910
+  port: 19000
 
 spring:
   application:
@@ -27,17 +27,17 @@ spring:
             max-age: 3600
       routes:
         - predicates:
-            - Path=/sr/authenticate/**
-          uri: lb://${USERNAME}-service-retirement
-        - id: retirement-api
+            - Path=/organization/authenticate/**
+          uri: lb://${USERNAME}-service-organization
+        - id: organization-api
           predicates:
-            - Path=/sr/v2/api-docs
-          uri: lb://${USERNAME}-service-retirement
+            - Path=/organization/v2/api-docs
+          uri: lb://${USERNAME}-service-organization
           filters:
             - StripPrefix=1
         - predicates:
-            - Path=/sr/**
-          uri: lb://${USERNAME}-service-retirement
+            - Path=/organization/**
+          uri: lb://${USERNAME}-service-organization
           filters:
             - name: Auth
               args:

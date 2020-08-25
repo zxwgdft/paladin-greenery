@@ -7,6 +7,8 @@ import com.paladin.framework.exception.BusinessException;
 import com.paladin.framework.exception.SystemException;
 import com.paladin.framework.exception.SystemExceptionCode;
 import com.paladin.framework.mybatis.CustomMapper;
+import com.paladin.framework.security.UserSession;
+import com.paladin.framework.security.UserSessionThreadLocal;
 import com.paladin.framework.utils.convert.SimpleBeanCopyUtil;
 import com.paladin.framework.utils.convert.SimpleConvertUtil;
 import com.paladin.framework.utils.reflect.Entity;

@@ -120,7 +120,7 @@ public class VideoService {
                 command.add("-i");
                 command.add(videoPath);
                 command.add("-c:a");
-                command.add("aac");
+                command.add("libfdk_aac");
                 command.add("-c:v");
                 command.add("libx264");
                 command.add(outPath);
@@ -187,6 +187,5 @@ public class VideoService {
 
 
     }
-
 
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.paladin.organization.dao.mapper.PersonnelJobMapper">
+  <resultMap id="BaseResultMap" type="com.paladin.organization.model.PersonnelJob">
+    <!--@mbg.generated-->
+    <!--@Table personnel_job-->
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="employee_no" jdbcType="VARCHAR" property="employeeNo" />
+    <result column="dept" jdbcType="VARCHAR" property="dept" />
+    <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+    <result column="major" jdbcType="TINYINT" property="major" />
+    <result column="duty" jdbcType="TINYINT" property="duty" />
+    <result column="technical_qualification" jdbcType="VARCHAR" property="technicalQualification" />
+    <result column="gain_date" jdbcType="DATE" property="gainDate" />
+    <result column="tech_post" jdbcType="TINYINT" property="techPost" />
+    <result column="employ_date" jdbcType="DATE" property="employDate" />
+    <result column="employ_post" jdbcType="VARCHAR" property="employPost" />
+    <result column="formation" jdbcType="TINYINT" property="formation" />
+    <result column="inorout" jdbcType="TINYINT" property="inorout" />
+    <result column="inorout_date" jdbcType="DATE" property="inoroutDate" />
+    <result column="is_statistical" jdbcType="TINYINT" property="isStatistical" />
+    <result column="work_content" jdbcType="VARCHAR" property="workContent" />
+    <result column="attachments" jdbcType="VARCHAR" property="attachments" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, employee_no, dept, dept_name, major, duty, technical_qualification, gain_date, 
+    tech_post, employ_date, employ_post, formation, inorout, inorout_date, is_statistical, 
+    work_content, attachments, `status`
+  </sql>
+</mapper>

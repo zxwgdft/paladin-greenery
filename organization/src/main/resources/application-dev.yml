@@ -1,0 +1,65 @@
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+
+server:
+  port: 19010
+
+spring:
+  application:
+    name: ${USERNAME}-service-organization
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+  cloud:
+    nacos:
+      server-addr: 172.16.16.120:8848
+  data:
+    mongodb:
+      host: 172.16.16.120
+      port: 27017
+      database: organization
+  datasource:
+    name: organization
+    url: jdbc:mysql://172.16.16.120:3306/organization?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: netin
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 15
+      maximum-pool-size: 15
+  redis:
+    host: 172.16.16.120
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        max-wait: 5000
+        min-idle: 0
+    password: ''
+    port: 6379
+    timeout: 1000
+  rabbitmq:
+    host: 172.16.16.120
+    port: 5672
+    username: netin
+    password: 123456
+
+jwt:
+  key: rkoNCPXJT0F8RvqvAcW6F41ygXE7TX8oZqi3FMY5rMHe+Lt0JdLRkWEU1H47RJLfm2mgvVmocs2vPt8m/8td0A===
+  issuer: organization
+  expire-millisecond: 1800000
+
+ribbon:
+  ReadTimeout: 6000
+  ConnectTimeout: 6000
+
+paladin:
+  file:
+    ftp-host: 172.16.16.120
+    ftp-port: 21
+    ftp-username: netin
+    ftp-password: 123456
+    ftp-visit-host: 172.16.16.120
+    ftp-visit-port: 9021
