@@ -1,5 +1,6 @@
 package com.paladin.organization.web;
 
+import com.paladin.common.CommonBusiness;
 import com.paladin.organization.core.*;
 import com.paladin.organization.model.SysUser;
 import com.paladin.organization.service.dto.OAuthParam;
@@ -21,14 +22,14 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private WebSecurityManager webSecurityManager;
+    private OrgSecurityManager webSecurityManager;
 
     //TODO 是否固定域名跨域，还是对所有（安全性）
     @ApiOperation(value = "用户账号认证")
     @PostMapping("/authenticate/user")
     public OpenToken authenticateByAccount(@RequestBody LoginUser loginUser) {
         SysUser sysUser = authenticationManager.authenticateUser(loginUser);
-        return webSecurityManager.createToken(sysUser.getId(), WebSecurityManager.USER_TYPE_ORG_USER);
+        return webSecurityManager.createToken(sysUser.getId(), CommonBusiness.USER_TYPE_PERSONNEL);
     }
 
     //TODO 应用客户端后台认证，这里对所有跨域，但是会
@@ -36,7 +37,7 @@ public class AuthController {
     @PostMapping("/authenticate/app")
     public OpenToken authenticateByApp(@RequestBody LoginApp loginApp) {
         String appId = authenticationManager.authenticateApp(loginApp);
-        return webSecurityManager.createToken(appId, WebSecurityManager.USER_TYPE_APP);
+        return webSecurityManager.createToken(appId, CommonBusiness.USER_TYPE_APP);
     }
 
     //TODO 如果登录h5页面由我们服务提供，则需要限定域名提高安全性，否则失去跳转我们页面进行页面的认证的意义

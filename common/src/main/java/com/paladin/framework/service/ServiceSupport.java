@@ -8,7 +8,7 @@ import com.paladin.framework.exception.SystemException;
 import com.paladin.framework.exception.SystemExceptionCode;
 import com.paladin.framework.mybatis.CustomMapper;
 import com.paladin.framework.security.UserSession;
-import com.paladin.framework.security.UserSessionThreadLocal;
+import com.paladin.framework.security.WebSecurityManager;
 import com.paladin.framework.utils.convert.SimpleBeanCopyUtil;
 import com.paladin.framework.utils.convert.SimpleConvertUtil;
 import com.paladin.framework.utils.reflect.Entity;
@@ -932,7 +932,7 @@ public abstract class ServiceSupport<Model> {
     public void updateModelWrap(Model model) {
         if (isBaseModel) {
             Date now = new Date();
-            UserSession userSession = UserSessionThreadLocal.getCurrentUserSession();
+            UserSession userSession = WebSecurityManager.getCurrentUserSession();
             String uid = userSession == null ? "" : userSession.getUserId();
             BaseModel baseModel = (BaseModel) model;
             baseModel.setUpdateTime(now);
@@ -948,7 +948,7 @@ public abstract class ServiceSupport<Model> {
     public void saveModelWrap(Model model) {
         if (isBaseModel) {
             Date now = new Date();
-            UserSession userSession = UserSessionThreadLocal.getCurrentUserSession();
+            UserSession userSession = WebSecurityManager.getCurrentUserSession();
             String uid = userSession == null ? "" : userSession.getUserId();
             BaseModel baseModel = (BaseModel) model;
             baseModel.setCreateTime(now);

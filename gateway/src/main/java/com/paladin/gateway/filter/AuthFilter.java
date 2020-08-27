@@ -2,9 +2,13 @@ package com.paladin.gateway.filter;
 
 import com.paladin.framework.common.HttpCode;
 import com.paladin.framework.common.R;
-import com.paladin.framework.jwt.TokenProvider;
+import com.paladin.framework.security.TokenProvider;
+import com.paladin.framework.security.UserClaims;
 import com.paladin.gateway.util.WebFluxUtil;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.core.Ordered;
@@ -34,20 +38,14 @@ public class AuthFilter implements GatewayFilter, Ordered {
 
         if (token != null && token.length() > 0) {
             try {
-                Claims claims = tokenProvider.parseJWT(token);
-                String subject = claims.getSubject();
+                UserClaims userClaims = tokenProvider.parseJWT(token);
 
-                // subject 一般为user_id
-                exchange = WebFluxUtil.addRequestHeader(exchange, config.getUserIdField(), subject);
+                ServerHttpRequest.Builder builder = request.mutate();
 
-//                // 过期暂时不处理，由客户端处理
-//                Date expirationTime = claims.getExpiration();
-//                if (expirationTime.getTime() - System.currentTimeMillis() < config.getUpdateTokenIdle()) {
-//                    // 剩余过期时间小于一定值，则刷新一个新jwtToken
-//                    String newToken = tokenProvider.createJWT(subject);
-//                    // 在相应头中添加新Token
-//                    exchange.getResponse().getHeaders().add(config.getRefreshTokenField(), newToken);
-//                }
+                builder.header(config.getUserIdField(), userClaims.getUserId());
+                builder.header(config.getUserTypeField(), userClaims.getUserType());
+
+                exchange = exchange.mutate().request(builder.build()).build();
 
                 return chain.filter(exchange);
             } catch (UnsupportedJwtException | MalformedJwtException | SignatureException e) {

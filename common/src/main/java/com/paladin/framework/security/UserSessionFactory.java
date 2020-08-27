@@ -6,6 +6,6 @@ package com.paladin.framework.security;
  */
 public interface UserSessionFactory {
 
-    UserSession createUserSession(String subject);
+    UserSession createUserSession(String userId, String userType);
 
 }

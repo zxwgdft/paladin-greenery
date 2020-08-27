@@ -1,7 +1,7 @@
 package com.paladin.organization.config;
 
-import com.paladin.framework.jwt.SHATokenProvider;
-import com.paladin.framework.jwt.TokenProvider;
+import com.paladin.framework.security.SHATokenProvider;
+import com.paladin.framework.security.TokenProvider;
 import com.paladin.framework.service.DataContainerManager;
 import com.paladin.framework.service.FileStoreService;
 import com.paladin.framework.service.ServiceSupportManager;

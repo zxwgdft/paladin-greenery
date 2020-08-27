@@ -5,7 +5,7 @@ import com.paladin.framework.utils.StringUtil;
 import com.paladin.framework.utils.UUIDUtil;
 import com.paladin.organization.core.AppClientSession;
 import com.paladin.organization.core.OrgUserSession;
-import com.paladin.organization.core.WebSecurityManager;
+import com.paladin.organization.core.OrgSecurityManager;
 import com.paladin.organization.model.App;
 import com.paladin.organization.model.SysUser;
 import com.paladin.organization.service.constant.RedisKeyPrefix;
@@ -78,7 +78,7 @@ public class AppRedirectService {
         // TODO 判断是否有权跳转应用
 
         String url = app.getRedirectUrl();
-        OrgUserSession session = WebSecurityManager.getCurrentOrgUserSession();
+        OrgUserSession session = OrgSecurityManager.getCurrentOrgUserSession();
         if (session == null) {
             throw new BusinessException("登录用户没有权限重定向跳转");
         }
@@ -152,7 +152,7 @@ public class AppRedirectService {
             throw new BusinessException("没有需要跳转的用户请求，或者跳转请求已经过期");
         }
 
-        AppClientSession session = WebSecurityManager.getCurrentAppClientSession();
+        AppClientSession session = OrgSecurityManager.getCurrentAppClientSession();
         if (session == null) {
             throw new BusinessException("登录用户非应用客户端");
         }

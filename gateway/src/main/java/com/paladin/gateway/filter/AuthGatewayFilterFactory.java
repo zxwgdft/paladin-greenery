@@ -1,7 +1,7 @@
 package com.paladin.gateway.filter;
 
-import com.paladin.framework.jwt.RSATokenProvider;
-import com.paladin.framework.jwt.SHATokenProvider;
+import com.paladin.framework.security.RSATokenProvider;
+import com.paladin.framework.security.SHATokenProvider;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -52,14 +52,14 @@ public class AuthGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthG
         private String tokenField = HttpHeaders.AUTHORIZATION;
 
         /**
-         * 刷新Token域
-         */
-        private String refreshTokenField = HttpHeaders.AUTHORIZATION;
-
-        /**
          * 用户ID域
          */
-        private String userIdField = "User-ID";
+        private String userIdField = "user-ID";
+
+        /**
+         * 用户类型域
+         */
+        private String userTypeField = "user-type";
 
         /**
          * 更新token的间隔，过期剩余时间如果小于这个间隔，则将更新新的TOKEN，该值应该小于token过期时间

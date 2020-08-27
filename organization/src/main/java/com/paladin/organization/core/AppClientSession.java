@@ -1,5 +1,6 @@
 package com.paladin.organization.core;
 
+import com.paladin.common.CommonBusiness;
 import com.paladin.framework.security.UserSession;
 
 /**
@@ -8,11 +9,10 @@ import com.paladin.framework.security.UserSession;
  */
 public class AppClientSession extends UserSession {
 
-    private String appId;
     private AppClientDataLoader sessionLoader;
 
     public AppClientSession(String appId, AppClientDataLoader sessionLoader) {
-        this.appId = appId;
+        super(appId, CommonBusiness.USER_TYPE_APP);
         this.sessionLoader = sessionLoader;
     }
 
@@ -27,11 +27,6 @@ public class AppClientSession extends UserSession {
                 }
             }
         }
-    }
-
-    @Override
-    public String getUserId() {
-        return appId;
     }
 
 

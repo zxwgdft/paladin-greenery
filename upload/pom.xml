@@ -9,10 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>organization</artifactId>
+    <artifactId>upload</artifactId>
 
     <dependencies>
-
         <dependency>
             <groupId>paladin.greenery</groupId>
             <artifactId>common</artifactId>
@@ -24,15 +23,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
-        </dependency>
 
         <!--        <dependency>-->
         <!--            <groupId>com.alibaba.cloud</groupId>-->
@@ -48,8 +38,17 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!--        <dependency>-->
+        <!--            <groupId>it.sauronsoftware</groupId>-->
+        <!--            <artifactId>jave</artifactId>-->
+        <!--            <version>1.0.2</version>-->
+        <!--        </dependency>-->
+
+
     </dependencies>
 
     <build>
@@ -74,11 +73,43 @@
                     <include>**/*.*</include>
                 </includes>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>static/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>static/**</include>
+                </includes>
+                <filtering>false</filtering>
             </resource>
         </resources>
     </build>
 
-
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>pro</id>
+            <properties>
+                <spring.profiles.active>pro</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 
 </project>

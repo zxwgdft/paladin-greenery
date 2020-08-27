@@ -1,5 +1,6 @@
 package com.paladin.organization.core;
 
+import com.paladin.common.CommonBusiness;
 import com.paladin.framework.security.UserSession;
 import com.paladin.organization.model.Personnel;
 
@@ -9,11 +10,10 @@ import com.paladin.organization.model.Personnel;
  */
 public class OrgUserSession extends UserSession {
 
-    private String userId;
     private OrgUserDataLoader orgUserSessionLoad;
 
     public OrgUserSession(String userId, OrgUserDataLoader orgUserSessionLoad) {
-        this.userId = userId;
+        super(userId, CommonBusiness.USER_TYPE_PERSONNEL);
         this.orgUserSessionLoad = orgUserSessionLoad;
     }
 
@@ -40,10 +40,6 @@ public class OrgUserSession extends UserSession {
                 }
             }
         }
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     protected boolean isSystemAdmin;

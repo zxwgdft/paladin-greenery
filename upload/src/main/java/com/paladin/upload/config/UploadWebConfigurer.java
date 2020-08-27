@@ -1,7 +1,7 @@
-package com.paladin.organization.config;
+package com.paladin.upload.config;
 
 import com.paladin.framework.spring.web.DateFormatter;
-import com.paladin.organization.core.OrgSecurityManager;
+import com.paladin.upload.core.UploadSecurityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +16,10 @@ import java.util.Date;
 
 @Slf4j
 @Configuration
-public class OrganizationWebConfigurer implements WebMvcConfigurer {
+public class UploadWebConfigurer implements WebMvcConfigurer {
 
     @Autowired
-    private OrgSecurityManager webSecurityManager;
+    private UploadSecurityManager webSecurityManager;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -41,7 +41,6 @@ public class OrganizationWebConfigurer implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        registry.addViewController("/").setViewName("redirect:/login");
     }
 
     @Override
@@ -54,9 +53,6 @@ public class OrganizationWebConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(webSecurityManager)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/organization/authenticate/**");
+                .addPathPatterns("/**");
     }
-
-
 }
