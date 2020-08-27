@@ -1,318 +1,380 @@
-<!DOCTYPE html>
 <html>
 
 <head>
-    <title>视频上传</title>
+    <title>模拟</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
-    <link rel="stylesheet" href="../assets/layui/css/layui.css"/>
-    <style type="text/css">
-        .upload-layer {
-            padding: 30px;
-        }
+    <link rel="stylesheet" href="../assets/bootstrap3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-table/bootstrap-table.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-treeview/bootstrap-treeview.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-fileinput/css/fileinput.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-select/css/bootstrap-select.min.css"/>
+    <link rel="stylesheet" href="../assets/adminLTE/css/AdminLTE.min.css"/>
+    <link rel="stylesheet" href="../assets/iCheck/square/_all.css"/>
+    <link rel="stylesheet" href="../assets/layer/theme/default/layer.css"/>
+    <link rel="stylesheet" href="../assets/laydate/theme/default/laydate.css"/>
+    <link rel="stylesheet" href="../css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../css/ionicons.min.css"/>
+    <link rel="stylesheet" href="../css/common.css"/>
 
-        .upload-btn {
-            text-align: right;
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 
-
-<body style="background-color: #f2f2f2;padding-top: 30px">
-
-<div class="layui-container">
-    <div class="layui-row layui-col-space15">
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-body">
-                    <div class="layui-tab layui-tab-brief" lay-filter="component-tabs-brief">
-                        <ul class="layui-tab-title">
-                            <li class="layui-this">视频列表</li>
-                            <li>视频上传</li>
-                        </ul>
-                        <div class="layui-tab-content">
-                            <div class="layui-tab-item layui-show">
-                                <table id="completedTable"></table>
-                            </div>
-                            <div class="layui-tab-item">
-                                <div style="text-align: right">
-                                    <button onclick="openUpload()" class="layui-btn"><i class="layui-icon">&#xe67c;</i>开始上传
-                                    </button>
-                                </div>
-                                <table id="uploadTable" lay-filter="upload-table"></table>
-                            </div>
+<body style="background-color: #ecf0f5;">
+<section class="content">
+    <div class="col-xs-2">
+        <div class="box box-solid">
+            <div class="box-header">
+                <h3 class="box-title">用户登录</h3>
+            </div>
+            <div class="box-body">
+                <form method="post">
+                    <div class="form-group has-feedback">
+                        <input type="text" name="username" class="form-control" placeholder="用户名" value="liyuanmei">
+                        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <input type="password" name="password" class="form-control" placeholder="密码" value="1">
+                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <button type="button" onclick="login()" class="btn btn-primary btn-block btn-flat">登录
+                            </button>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <div class="col-xs-8">
+        <div class="box box-solid">
+            <div class="box-header">
+                <h3 class="box-title">应用列表</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body" style="height: 300px">
+                <table id="appTable"></table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-2">
+        <div class="box box-solid">
+            <div class="box-header">
+                <h3 class="box-title" id="appCheckedTitle">未选择应用</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                <p>
+                    <button class="btn btn-success btn-block" onclick="createModel()">创建模型</button>
+                </p>
+                <p id="createResourceDiv">
+
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-6" id="modelForm">
+
+    </div>
+
+    <div class="col-xs-6" id="resourceForm">
+
+    </div>
+
+</section>
+
+<div>
+    <script type="text/javascript" src="../assets/jquery/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-table/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-suggest/bootstrap-suggest.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-select/js/i18n/defaults-zh_CN.min.js"></script>
+    <script type="text/javascript" src="../assets/adminLTE/js/adminlte.min.js"></script>
+    <script type="text/javascript" src="../assets/jquery-validation/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="../assets/jquery-form/jquery.form.min.js"></script>
+    <script type="text/javascript" src="../assets/layer/layer.js"></script>
+    <script type="text/javascript" src="../assets/laydate/laydate.js"></script>
+    <script type="text/javascript" src="../assets/iCheck/icheck.min.js"></script>
+    <script type="text/javascript" src="../js/common.js"></script>
+    <script type="text/javascript" src="../js/common-model.js"></script>
 </div>
-
-
-<!--引入JS-->
-<script type="text/javascript" src="../assets/jquery/jquery-2.2.4.min.js"></script>
-<script type="text/javascript" src="../assets/layui/layui.all.js"></script>
-<script type="text/javascript" src="../js/common.js"></script>
-
-<script type="text/html" id="uploadBtnBar">
-    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="upload">上传</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-</script>
 
 <script type="text/javascript">
 
+    var appId;
+
     $(function () {
-
-        $.login(null, null, function () {
-            init();
-        });
-
+        appId = $.getUrlVariable("appId");
     });
 
-    function init() {
-        layui.table.render({
-            id: 'completedTable',
-            elem: '#completedTable',
-            url: base_url + '/upload/video/find/completed/page',
-            page: true,
-            headers: {'Authorization': $.getToken()},
-            cols: [
-                [
-                    {field: 'fileName', title: '用户名'},
-                    {
-                        field: 'id', title: 'URL', templet: function (row) {
-                            return 'http://172.16.16.120:9999/' + row.id + '.mp4';
-                        }
-                    },
-                    {
-                        field: 'fileSize', title: '文件大小', width: 100, align: 'center', templet: function (row) {
-                            return Math.round(row.fileSize / (1024 * 1024)) + "M";
-                        }
-                    },
-                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'},
-                    {
-                        field: 'transcodeStatus',
-                        title: '视频转码状态',
-                        width: 120,
-                        align: 'center',
-                        templet: function (row) {
-                            var s = row.transcodeStatus;
-                            return s == 1 ? '视频转码中...' : (s == 2 ? '视频转码成功' : '视频转码失败');
-                        }
-                    },
-                ]
-            ],
-            parseData: function (res) { //res 即为原始返回的数据
-                var data = res;
-                return {
-                    "code": 0, //解析接口状态
-                    "count": data ? data.total : 0, //解析数据长度
-                    "data": data ? data.data : [] //解析数据列表
-                };
-            }
-        });
+    var token, expiresTime;
 
-        layui.table.render({
-            id: 'uploadTable',
-            elem: '#uploadTable',
-            url: base_url + '/upload/video/find/uploading',
-            headers: {'Authorization': $.getToken()},
-            page: false,
-            cols: [
-                [
-                    {field: 'fileName', title: '用户名'},
-                    {
-                        field: 'fileSize', title: '上传进度', width: 160, align: 'center', templet: function (row) {
-                            return Math.round(row.finishChunk * row.chunkSize * 1024 * 102400 / row.fileSize) + '%';
-                        }
-                    },
-                    {field: 'createTime', width: 170, align: 'center', title: '创建时间'},
-                    {width: 165, align: 'center', toolbar: '#uploadBtnBar'}
-                ]
-            ],
-            parseData: function (res) { //res 即为原始返回的数据
-                return {
-                    code: 0,
-                    data: res || []
-                }
-            }
-        });
+    function login() {
+        var username = $("input[name='username']").val();
+        var password = $("input[name='password']").val();
 
-        layui.table.on('tool(upload-table)', function (obj) {
-            var data = obj.data, layEvent = obj.event;
-            if (layEvent === 'upload') {
-                openUpload(data.id, data.fileName, data.fileSize);
-            } else if (layEvent === 'del') {
-                layer.confirm('确定删除么', function (index) {
-                    $.postAjax(base_url + "/upload/video/delete", {id: data.id}, function () {
-                        $.successMessage("删除成功");
-                        layui.table.reload("uploadTable");
-                    });
-                    layer.close(index);
-                });
-            }
-        });
-    }
-
-    function openUpload(id, fileName, fileSize) {
-        var isNew = id ? false : true;
-        $.openPageLayer(layerContent, {
-            title: '上传视频',
-            width: 550,
-            height: 300,
-            success: function () {
-                if (isNew) {
-                    $("#fileName").text("请选择上传文件");
-                } else {
-                    $("#fileName").text("请选择上传文件：" + fileName + "");
-                }
-
-                $("#fileInput").change(function () {
-                    var dom = $(this)[0];
-                    if (dom.files.length > 0) {
-                        $("#fileName").text(dom.files[0].name);
-                        $("#progressSlogan").text("准备开始上传");
-                    }
-                });
-
-                $("#checkBtn").click(function () {
-                    $("#fileInput").click();
-                });
-
-                $("#startBtn").click(function () {
-                    var f = $("#fileInput")[0];
-                    if (f.files.length > 0) {
-                        var file = f.files[0];
-
-                        if (!isNew && file.size != fileSize) {
-                            $.errorMessage("您选择续传的文件与原上传文件大小不一致，请确认是否原文件");
-                            return;
-                        }
-
-                        if (isNew) {
-                            $.postAjax(base_url + "/upload/video/create", {
-                                fileName: file.name,
-                                clientFilePath: file.name,
-                                fileSize: file.size
-                            }, function (data) {
-                                if (data.status == 1) {
-                                    new _Uploader(file, data).uploadChunk();
-                                } else {
-                                    $.infoMessage("上传文件结束");
-                                }
-                            });
-                        } else {
-                            $.postAjax(base_url + "/upload/video/continue", {
-                                id: id
-                            }, function (data) {
-                                if (data.status == 1) {
-                                    new _Uploader(file, data).uploadChunk();
-                                } else {
-                                    $.infoMessage("上传文件结束");
-                                }
-                            });
-                        }
-                    } else {
-                        $.errorMessage("请选择上传文件");
-                    }
-                });
-            }
-        });
-    }
-
-    var _Uploader = function (file, options) {
-        var that = this;
-        that.file = file;
-        that.fileSize = file.size;
-        that.uploadId = options.id;
-        that.chunkSize = options.chunkSize;
-        that.currentChunk = options.currentChunk;
-        that.chunkCount = Math.ceil(that.fileSize / that.chunkSize);
-        that.status = 1;
-        that.updateProgress();
-    }
-
-    _Uploader.prototype.uploadChunk = function () {
-        var that = this;
-
-        if (that.status != 1) {
-            return;
-        }
-
-        var start = that.currentChunk * that.chunkSize,
-            end = Math.min(that.fileSize, start + that.chunkSize);
-
-        var form = new FormData();
-        form.append("id", that.uploadId);
-        form.append("file", that.file.slice(start, end));  //slice方法用于切出文件的一部分
-        form.append("chunk", that.currentChunk);
-
-        //Ajax提交
-        $.ajax({
-            url: base_url + "/upload/video/chunk",
-            type: "POST",
-            headers: {
-                'Authorization': $.getToken()
-            },
-            data: form,
-            async: true,        //异步
-            processData: false,  //jquery不要对form进行处理
-            contentType: false,  //指定为false才能形成正确的Content-Type
-            success: function (response) {
-
-                var data = response;
-                var status = data.status;
-                if (status == 1) {
-                    that.status = 1;
-                    that.currentChunk = data.currentChunk;
-                    that.uploadChunk();
-                } else {
-                    that.status = 2;
-                    $.successMessage("上传完成");
-                    layui.table.reload("completedTable");
-                }
-
-                that.updateProgress();
-            }
-        });
-    }
-
-    _Uploader.prototype.updateProgress = function () {
-        var status = this.status;
-        if (status == 1) {
-            var progressPercentage = Math.round(this.currentChunk / this.chunkCount * 100);
-            layui.element.progress("upload-progress", progressPercentage + "%");
-        } else if (status == 2) {
-            layui.element.progress("upload-progress", "100%");
+        if (appId) {
+            $.sendAjax({
+                type: "POST",
+                url: baseUrl + "/organization/authenticate/oauth",
+                dataType: "text",
+                data: JSON.stringify({
+                    username: username,
+                    password: password,
+                    appId: appId
+                }),
+                contentType: "application/json",
+                success: function (url) {
+                    window.location = url;
+                },
+                submitBtn: $("button")
+            });
         } else {
-
+            $.postJsonAjax(
+                baseUrl + "/organization/authenticate/user",
+                {
+                    username: username,
+                    password: password
+                }, function (data) {
+                    token = data.accessToken;
+                    expiresTime = data.expiresTime;
+                    $.setToken(token);
+                    loadAppTable();
+                },
+                $("button")
+            );
         }
+
     }
 
+    var table;
 
-    var layerContent = '    <div class="upload-layer">\n' +
-        '        <div class="layui-row">\n' +
-        '            <div class="layui-col-md8">\n' +
-        '                <h3 id="fileName">\n' +
-        '                </h3>\n' +
-        '            </div>\n' +
-        '            <div class="layui-col-md4 upload-btn">\n' +
-        '                <input type="file" id="fileInput" style="display: none"/>\n' +
-        '                <button id="checkBtn" class="layui-btn layui-btn-normal layui-btn-sm">选择文件</button>\n' +
-        '                <button id="startBtn" class="layui-btn layui-btn-sm">开始上传</button>\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '        <div class="layui-row">\n' +
-        '            <div class="layui-col-md12">\n' +
-        '                <div class="layui-progress layui-progress-big" lay-showpercent="yes" lay-filter="upload-progress">\n' +
-        '                    <div class="layui-progress-bar" lay-percent="0%"></div>\n' +
-        '                </div>\n' +
-        '            </div>\n' +
-        '        </div>\n' +
-        '    </div>';
+    function loadAppTable() {
+        table = $.createTable("#appTable", {
+            idField: "id",
+            columns: [
+                [
+                    {title: "应用名称", field: "appName"},
+                    {title: "应用ID", field: "appId"},
+                    {title: "应用URL", field: "redirectUrl"},
+                    {title: "联系人", field: "contactName"},
+                    {title: "联系电话", field: "contactPhone"},
+                    {
+                        title: "操作",
+                        align: "center",
+                        width: "200px",
+                        events: {
+                            'click .redirect': function (e, value, row, index) {
+                                redirect(row);
+                            },
+                            'click .check': function (e, value, row, index) {
+                                check(row);
+                            }
+                        },
+                        formatter: function operateFormatter(value, row, index) {
+                            return '<button class="redirect btn btn-xs btn-info" style="margin-right:10px"><i class="glyphicon glyphicon-edit"></i>跳转</button>' +
+                                '<button class="check btn btn-xs btn-success"><i class="glyphicon glyphicon-edit"></i>选择</button>';
+                        }
+                    }
+                ]
+            ],
+            url: baseUrl + '/organization/app/find/all',
+            pagination: false
+        });
+    }
+
+    function redirect(row) {
+        $.sendAjax({
+            type: "GET",
+            url: baseUrl + "/organization/app/redirect?appId=" + row.appId,
+            dataType: "text",
+            success: function (url) {
+                window.location = url;
+            }
+        });
+    }
+
+    var checkedApp;
+
+    function check(row) {
+        $("#appCheckedTitle").text("应用[" + row.appName + "]");
+        checkedApp = row;
+        loadModel();
+    }
+
+    var modelOptions = {
+        id: "model",
+        cancelBtn: false,
+        name: "创建模型",
+        server: false,
+        columns: [
+            {title: "名称", name: "name", required: "required", maxLength: 20, colspan: 2, inputType: "TEXT"},
+            {
+                // 子项添加，未做保存处理
+                title: "属性",
+                name: "properties",
+                required: "required",
+                inputType: "SUB-MODEL",
+                subViewField: "properties",
+                addSubModelBtnTitle: '添加属性',
+                subTitleViewHtmml: function (data) {
+                    var html = '<span class="product-description" style="line-height:34px">' + data.code + "-" + data.name + '</span>';
+                    return html;
+                },
+                subModelOptions: {
+                    headBorder: false,
+                    hearderBox: false,
+                    server: false,
+                    layerOption: {
+                        height: 300,
+                        width: 600
+                    },
+                    columns: [
+                        {title: "Code", name: "code", inputType: "TEXT", required: "required"},
+                        {title: "Code Name", name: "name", inputType: "TEXT", required: "required"}
+                    ]
+                }
+            }
+        ]
+    }
+
+    function createModel() {
+        var html = generateEditHtml(modelOptions);
+        $("#modelForm").html(html);
+        $.initComponent($("#modelForm"));
+
+        var model = new tonto.Model("model", modelOptions.columns, {
+            pattern: "edit",
+            submitClick: function (that) {
+                if (that.formBody.valid()) {
+                    var d = that.getFormData();
+                    d.appId = checkedApp.id;
+                    $.postJsonAjax(
+                        baseUrl + "/organization/app/resource/model/save",
+                        d, function (data) {
+                            console.log(data);
+                            $.successMessage("保存成功");
+                            loadModel();
+                        },
+                        $("button")
+                    );
+                }
+            }
+        });
+        model.setData(null);
+    }
+
+    var resourceModels;
+
+    function loadModel() {
+        $.getAjax(
+            baseUrl + "/organization/app/resource/model/get?appId=" + checkedApp.id,
+            function (data) {
+                resourceModels = data;
+                createModelSelector();
+            });
+    }
+
+    function createModelSelector() {
+        var html = '<div class="btn-group">\n' +
+            '                            <button type="button" class="btn btn-success">选择模型创建资源</button>\n' +
+            '                            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="false">\n' +
+            '                                <span class="caret"></span>\n' +
+            '                                <span class="sr-only">Toggle Dropdown</span>\n' +
+            '                            </button>\n' +
+            '                            <ul class="dropdown-menu" role="menu">\n';
+
+        if (resourceModels) {
+            for (var i = 0; i < resourceModels.length; i++) {
+                html += '<li><a href="javascript:createResource(' + i + ')">' + resourceModels[i].name + '</a></li>\n';
+            }
+        }
+
+        html +=
+            '                            </ul>\n' +
+            '                        </div>';
+        $("#createResourceDiv").html(html);
+    }
+
+    var checkModel;
+
+    function createResource(modelIndex) {
+        checkModel = resourceModels[modelIndex];
+
+        var columns = [
+            {title: "名称", name: "name", required: "required", maxLength: 20, inputType: "TEXT"},
+            {title: "父级", name: "parent", inputType: "TEXT"}
+        ];
+
+        checkModel.properties.forEach(function (property) {
+            columns.push({
+                    title: property.name,
+                    name: property.code,
+                    inputType: "TEXT"
+                }
+            );
+        })
+
+        var resourceOptions = {
+            id: "resource",
+            cancelBtn: false,
+            name: "创建资源",
+            server: false,
+            columns: columns
+        }
+
+        var html = generateEditHtml(resourceOptions);
+        $("#resourceForm").html(html);
+        $.initComponent($("#resourceForm"));
+
+        new tonto.Model("resource", resourceOptions.columns, {
+            pattern: "edit",
+            submitClick: function (that) {
+                if (that.formBody.valid()) {
+                    var d = that.getFormData();
+
+                    var param = {
+                        name: d.name,
+                        parent: d.parent,
+                        appId: checkedApp.id,
+                        modelId: checkModel.id
+                    };
+
+                    delete d.name;
+                    delete d.parent;
+                    param.properties = d;
+
+                    $.postJsonAjax(
+                        baseUrl + "/organization/app/resource/save",
+                        param, function (data) {
+                            console.log(data);
+                            $.successMessage("保存成功");
+                        },
+                        $("button")
+                    );
+                }
+            }
+        }).setData(null);
+
+    }
+
 
 </script>
 </body>
