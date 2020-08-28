@@ -53,7 +53,7 @@ public class LocalFileStoreService implements FileStoreService {
     public void storeFile(InputStream input, String filePath, String fileName) {
         String path = this.filePath + filePath + "/" + fileName;
         try (OutputStream out = Files.newOutputStream(Paths.get(path))) {
-            byte[] buffer = new byte[2048];
+            byte[] buffer = new byte[4096];
             int len;
             while ((len = input.read(buffer)) > -1) {
                 out.write(buffer, 0, len);
@@ -89,7 +89,7 @@ public class LocalFileStoreService implements FileStoreService {
 
     @Override
     public String getStoreType() {
-        return "default";
+        return "local";
     }
 
     @Override

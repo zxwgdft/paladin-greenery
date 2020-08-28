@@ -1938,10 +1938,6 @@ function _initTable() {
 
 // 初始化常量
 function _initEnumConstant(container) {
-    var tc = $("#tonto_constant_value");
-    if (tc.length > 0) {
-        window._constant_cache = $.parseJSON(tc.text());
-    }
 
     $.extend({
         putConstantEnum: function (enumcode, items) {

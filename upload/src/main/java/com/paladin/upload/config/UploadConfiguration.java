@@ -1,12 +1,11 @@
 package com.paladin.upload.config;
 
-import com.paladin.framework.security.SHATokenProvider;
-import com.paladin.framework.security.TokenProvider;
 import com.paladin.framework.service.DataContainerManager;
+import com.paladin.framework.service.FileStoreService;
 import com.paladin.framework.service.ServiceSupportManager;
+import com.paladin.framework.service.impl.LocalFileStoreService;
 import com.paladin.framework.spring.SpringBeanHelper;
 import com.paladin.framework.spring.SpringContainerManager;
-import com.paladin.framework.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,17 +19,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Slf4j
 @Configuration
 public class UploadConfiguration {
-
-    @Bean
-    public TokenProvider getTokenProvider(Environment env) {
-        SHATokenProvider tokenProvider = new SHATokenProvider();
-        tokenProvider.setBase64Key(env.getProperty("jwt.key"));
-        String expireMillisecondStr = env.getProperty("jwt.expire-millisecond");
-        long expireMillisecond = StringUtil.isEmpty(expireMillisecondStr) ? 30 * 60 * 1000 : Long.valueOf(expireMillisecondStr);
-        tokenProvider.setTokenExpireMilliseconds(expireMillisecond);
-        tokenProvider.setIssuer(env.getProperty("jwt.issuer"));
-        return tokenProvider;
-    }
 
     /**
      * 启用异常统一处理
@@ -74,4 +62,31 @@ public class UploadConfiguration {
     public SpringContainerManager springContainerManager() {
         return new SpringContainerManager();
     }
+
+    /**
+     * 文件存储服务
+     *
+     * @return
+     */
+    @Bean
+    public FileStoreService getFileStoreService(Environment env) {
+        String folder = env.getProperty("attachment.upload-folder");
+        String visitUrl = env.getProperty("attachment.visit-base-url");
+
+        FileStoreService fileStoreService = new LocalFileStoreService(folder) {
+            
+//            @Override
+//            public String getStoreType() {
+//                return "local";
+//            }
+
+            @Override
+            public String getFileUrl(String relativePath) {
+                return visitUrl + relativePath;
+            }
+        };
+
+        return fileStoreService;
+    }
+
 }

@@ -14,6 +14,8 @@ import com.paladin.upload.mapper.UploadVideoMapper;
 import com.paladin.upload.model.UploadVideo;
 import com.paladin.upload.service.dto.UploadVideoDTO;
 import com.paladin.upload.service.dto.UploadVideoQuery;
+import com.paladin.upload.service.util.BigFileUploader;
+import com.paladin.upload.service.util.UploadBigFile;
 import com.paladin.upload.service.vo.UploadVideoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-public class UploadVideoService extends ServiceSupport<UploadVideo> implements SpringContainer, FileUploader.FileUploadListener {
+public class UploadVideoService extends ServiceSupport<UploadVideo> implements SpringContainer, BigFileUploader.FileUploadListener {
 
     @Value("${video.upload.chuck-size:5}")
     private int chunkSize;  // 单位M
@@ -50,7 +52,7 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
     @Autowired
     private VideoTransService videoService;
 
-    private Map<String, FileUploader> fileUploaderMap = new ConcurrentHashMap<>();
+    private Map<String, BigFileUploader> fileUploaderMap = new ConcurrentHashMap<>();
 
     // 项目启动后执行
     public boolean afterInitialize() {
@@ -151,9 +153,9 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
     /**
      * 获取或创建上传器
      */
-    public FileUploader getOrCreateUploader(String id) {
+    public BigFileUploader getOrCreateUploader(String id) {
 
-        FileUploader uploader = fileUploaderMap.get(id);
+        BigFileUploader uploader = fileUploaderMap.get(id);
 
         if (uploader == null) {
             synchronized (fileUploaderMap) {
@@ -176,7 +178,7 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
                                 throw new BusinessException("上传文件异常，请重新上传");
                         }
                     }
-                    uploader = new FileUploader(SimpleBeanCopyUtil.simpleCopy(uploadFile, UploadFile.class), this, targetFolder);
+                    uploader = new BigFileUploader(SimpleBeanCopyUtil.simpleCopy(uploadFile, UploadBigFile.class), this, targetFolder);
                     fileUploaderMap.put(id, uploader);
                 }
             }
@@ -192,8 +194,8 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
      * @param chunkIndex  块序号
      * @param inputStream 块数据流
      */
-    public FileUploader uploadFileChunk(String id, int chunkIndex, InputStream inputStream) {
-        FileUploader uploader = getOrCreateUploader(id);
+    public BigFileUploader uploadFileChunk(String id, int chunkIndex, InputStream inputStream) {
+        BigFileUploader uploader = getOrCreateUploader(id);
         uploader.uploadFileChunk(chunkIndex, inputStream);
         return uploader;
     }
@@ -205,10 +207,10 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
     public void cleanUploader() {
         // 10分钟未操作和已经关闭的的uploader将被清理
         long time = System.currentTimeMillis() - 60L * 1000 * 10;
-        Iterator<Map.Entry<String, FileUploader>> it = fileUploaderMap.entrySet().iterator();
+        Iterator<Map.Entry<String, BigFileUploader>> it = fileUploaderMap.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, FileUploader> entry = it.next();
-            FileUploader uploader = entry.getValue();
+            Map.Entry<String, BigFileUploader> entry = it.next();
+            BigFileUploader uploader = entry.getValue();
             if (uploader.isCompleted() || uploader.getLastUpdateTime() < time) {
                 uploader.close();
                 it.remove();
@@ -281,7 +283,7 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
      */
     public void removeUploadFile(String id) {
         synchronized (fileUploaderMap) {
-            FileUploader uploader = fileUploaderMap.remove(id);
+            BigFileUploader uploader = fileUploaderMap.remove(id);
             if (uploader != null) {
                 uploader.close();
             }
@@ -290,31 +292,31 @@ public class UploadVideoService extends ServiceSupport<UploadVideo> implements S
     }
 
     @Override
-    public void completedSuccess(FileUploader uploader) {
+    public void completedSuccess(BigFileUploader uploader) {
         // 放入视频转换队列
         uploadFileMapper.updateStatus(uploader.getId(), UploadVideo.STATUS_COMPLETED);
         videoService.put2transcode(get(uploader.getId()));
     }
 
     @Override
-    public void completedError(FileUploader uploader) {
+    public void completedError(BigFileUploader uploader) {
         uploadFileMapper.updateStatus(uploader.getId(), UploadVideo.STATUS_UPLOAD_ERROR);
     }
 
     @Override
-    public void uploadChunkSuccess(FileUploader uploader, int chunkIndex) {
+    public void uploadChunkSuccess(BigFileUploader uploader, int chunkIndex) {
         if (uploadFileMapper.updateFinishChunk(uploader.getId()) == 0) {
             throw new BusinessException("无法更新上传文件状态");
         }
     }
 
     @Override
-    public void uploadChunkError(FileUploader uploader, int chunkIndex, Throwable throwable) {
+    public void uploadChunkError(BigFileUploader uploader, int chunkIndex, Throwable throwable) {
 
     }
 
     @Override
-    public void uploadError(FileUploader uploader) {
+    public void uploadError(BigFileUploader uploader) {
         uploadFileMapper.updateStatus(uploader.getId(), UploadVideo.STATUS_UPLOAD_ERROR);
     }
 

@@ -41,10 +41,6 @@ spring:
   thymeleaf:
     cache: false
 
-# jwt 相关配置，超时时间会被覆盖
-jwt:
-  key: rkoNCPXJT0F8RvqvAcW6F41ygXE7TX8oZqi3FMY5rMHe+Lt0JdLRkWEU1H47RJLfm2mgvVmocs2vPt8m/8td0A==
-  expire-millisecond: 3600000
 
 ribbon:
   ReadTimeout: 6000
@@ -52,8 +48,22 @@ ribbon:
 
 
 video:
+  # ffmpeg 转视频工具命令地址
   ffmpeg: E:/ffmpeg/bin/ffmpeg.exe
+  # 上传文件目录
   upload:
     folder: E:/upload/
+  # 转码后视频文件目录
   transcode:
     folder: E:/transcode/
+
+attachment:
+  # 附件上传目录
+  upload-folder: E:/upload/
+  # 附件访问基础地址
+  visit-base-url: /file/
+  # 上传附件最大大小（单位M）
+  max-file-size: 10
+  # 附件删除后保留时间（单位天）
+  delete-expire-day: 10
+

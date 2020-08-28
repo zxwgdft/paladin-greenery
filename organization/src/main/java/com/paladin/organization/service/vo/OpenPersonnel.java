@@ -1,6 +1,5 @@
 package com.paladin.organization.service.vo;
 
-import com.paladin.organization.core.FileResourceContainer;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -68,12 +67,5 @@ public class OpenPersonnel {
 
     @ApiModelProperty(value = "籍贯")
     private String nativePlace;
-
-    public FileResource getProfilePhotoFile() {
-        if (profilePhoto != null && profilePhoto.length() > 0) {
-            return FileResourceContainer.getFileResource(profilePhoto);
-        }
-        return null;
-    }
 
 }

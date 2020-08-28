@@ -1,4 +1,4 @@
-package com.paladin.organization.service;
+package com.paladin.upload.service;
 
 import com.paladin.framework.exception.BusinessException;
 import com.paladin.framework.service.Condition;
@@ -8,8 +8,8 @@ import com.paladin.framework.service.ServiceSupport;
 import com.paladin.framework.utils.StringUtil;
 import com.paladin.framework.utils.UUIDUtil;
 import com.paladin.framework.utils.convert.DateFormatUtil;
-import com.paladin.organization.model.SysAttachment;
-import com.paladin.organization.service.dto.FileCreateParam;
+import com.paladin.upload.model.UploadAttachment;
+import com.paladin.upload.service.dto.FileCreateParam;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
@@ -31,14 +31,14 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class SysAttachmentService extends ServiceSupport<SysAttachment> {
+public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
 
     // 单位M
-    @Value("${paladin.file.max-file-size:10}")
+    @Value("${attachment.max-file-size}")
     private int maxFileSize;
 
     // 附件删除后保留时间，默认10天，
-    @Value("${paladin.file.expire-day:10}")
+    @Value("${attachment.delete-expire-day}")
     private int expireDay;
 
     private int maxFileNameSize = 100;
@@ -58,46 +58,22 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
     /**
      * 创建附件
      */
-    public List<SysAttachment> createAttachments(MultipartFile[] files) {
-        List<SysAttachment> attachments = new ArrayList<>(files.length);
-        for (MultipartFile file : files) {
-            attachments.add(createAttachment(file, null));
-        }
-        return attachments;
+    public UploadAttachment createAttachment(MultipartFile file) {
+        return createFile(new FileCreateParam(file, null));
     }
 
     /**
      * 创建附件
      */
-    public SysAttachment createAttachment(MultipartFile file) {
-        return createAttachment(file, null);
+    public UploadAttachment createAttachment(MultipartFile file, String filename) {
+        return createFile(new FileCreateParam(file, filename));
     }
 
     /**
      * 创建附件
      */
-    public SysAttachment createAttachment(MultipartFile file, String filename) {
-        FileCreateParam param = new FileCreateParam();
-        param.setFileContent(file);
-        param.setType(SysAttachment.TYPE_FILE);
-        if (filename != null && filename.length() > 0) {
-            param.setFilename(filename);
-        }
-        return createFile(param);
-    }
-
-
-    /**
-     * 创建附件
-     */
-    public SysAttachment createAttachment(String base64str, String filename) {
-        FileCreateParam param = new FileCreateParam();
-        param.setFileContent(base64str);
-        param.setType(SysAttachment.TYPE_FILE);
-        if (filename != null && filename.length() > 0) {
-            param.setFilename(filename);
-        }
-        return createFile(param);
+    public UploadAttachment createAttachment(String base64str, String filename) {
+        return createFile(new FileCreateParam(base64str, filename));
     }
 
 
@@ -113,62 +89,51 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
     /**
      * 创建图片与缩略图
      */
-    public SysAttachment createPictureAndThumbnail(MultipartFile file) {
-        return createPictureAndThumbnail(file, null, min_thumbnail_width, min_thumbnail_height);
+    public UploadAttachment createPictureAndThumbnail(MultipartFile file) {
+        return createPictureAndThumbnail(new FileCreateParam(file, null));
     }
 
     /**
      * 创建图片与缩略图
      */
-    public SysAttachment createPictureAndThumbnail(MultipartFile file, String filename) {
-        return createPictureAndThumbnail(file, filename, min_thumbnail_width, min_thumbnail_height);
+    public UploadAttachment createPictureAndThumbnail(MultipartFile file, String filename) {
+        return createPictureAndThumbnail(new FileCreateParam(file, filename));
     }
 
     /**
      * 创建图片与缩略图
      */
-    public SysAttachment createPictureAndThumbnail(MultipartFile file, String filename, Integer thumbnailWidth,
-                                                   Integer thumbnailHeight) {
-        FileCreateParam param = new FileCreateParam();
-        param.setFileContent(file);
-        if (filename != null && filename.length() > 0) {
-            param.setFilename(filename);
-        }
-        return createPictureAndThumbnail(param, thumbnailWidth, thumbnailHeight);
+    public UploadAttachment createPictureAndThumbnail(MultipartFile file, String filename, Integer thumbnailWidth, Integer thumbnailHeight) {
+        FileCreateParam param = new FileCreateParam(file, filename);
+        param.setThumbnailWidth(thumbnailWidth);
+        param.setThumbnailHeight(thumbnailHeight);
+        return createPictureAndThumbnail(param);
     }
 
     /**
      * 创建图片与缩略图
      */
-    public SysAttachment createPictureAndThumbnail(String base64str, String filename) {
-        return createPictureAndThumbnail(base64str, filename, min_thumbnail_width, min_thumbnail_height);
+    public UploadAttachment createPictureAndThumbnail(String base64str, String filename) {
+        return createPictureAndThumbnail(new FileCreateParam(base64str, filename));
     }
 
     /**
      * 创建图片与缩略图
-     *
-     * @param base64str
-     * @param filename
-     * @param thumbnailWidth  缩略图宽度，如果不需要则设置为null
-     * @param thumbnailHeight 缩略图高度，如果不需要则设置为null
-     * @return
      */
-    public SysAttachment createPictureAndThumbnail(String base64str, String filename, Integer thumbnailWidth, Integer thumbnailHeight) {
-        FileCreateParam param = new FileCreateParam();
-        param.setFileContent(base64str);
-        return createFile(param);
+    public UploadAttachment createPictureAndThumbnail(String base64str, String filename, Integer thumbnailWidth, Integer thumbnailHeight) {
+        FileCreateParam param = new FileCreateParam(base64str, filename);
+        param.setThumbnailWidth(thumbnailWidth);
+        param.setThumbnailHeight(thumbnailHeight);
+        return createPictureAndThumbnail(param);
     }
 
     /**
      * 创建图片与缩略图，如果开启限制图片，过大图片会被压缩，压缩策略为根据图片大小与基准大小比例作为缩放大小进行缩放
      *
-     * @param param
-     * @param thumbnailWidth  缩略图宽度，如果不需要则设置为null
-     * @param thumbnailHeight 缩略图高度，如果不需要则设置为null
+     * @param param 文件创建参数
      * @return
      */
-    private SysAttachment createPictureAndThumbnail(FileCreateParam param, Integer thumbnailWidth, Integer thumbnailHeight) {
-        param.setType(SysAttachment.TYPE_IMAGE);
+    public UploadAttachment createPictureAndThumbnail(FileCreateParam param) {
         long size = param.getSize();
 
         if (size > max_picture_size) {
@@ -176,6 +141,9 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
             scale = Math.sqrt(scale) * 0.8;
             param.setScale(scale);
         }
+
+        Integer thumbnailHeight = param.getThumbnailHeight();
+        Integer thumbnailWidth = param.getThumbnailWidth();
 
         if (thumbnailHeight == null) {
             thumbnailHeight = min_thumbnail_height;
@@ -187,7 +155,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
 
         param.setThumbnailHeight(Math.min(thumbnailHeight, max_thumbnail_height));
         param.setThumbnailWidth(Math.min(thumbnailWidth, max_thumbnail_width));
-
+        param.setNeedThumbnail(true);
         return createFile(param);
     }
 
@@ -198,14 +166,13 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @param param
      * @return
      */
-    public SysAttachment createFile(FileCreateParam param) {
+    public UploadAttachment createFile(FileCreateParam param) {
         if (param.getSize() > maxFileByteSize) {
             throw new BusinessException("上传文件不能大于" + maxFileSize + "MB");
         }
-        SysAttachment attachment = new SysAttachment();
+        UploadAttachment attachment = new UploadAttachment();
         attachment.setId(UUIDUtil.createUUID());
         attachment.setSize(param.getSize());
-        attachment.setType(param.getType());
         attachment.setCreateTime(new Date());
         attachment.setDeleted(false);
 
@@ -247,7 +214,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @return
      * @throws IOException
      */
-    private SysAttachment saveFile(FileCreateParam param, SysAttachment attachment, String subPath) throws IOException {
+    private UploadAttachment saveFile(FileCreateParam param, UploadAttachment attachment, String subPath) throws IOException {
         String filename = attachment.getId();
         String suffix = attachment.getSuffix();
         if (suffix != null) {
@@ -267,7 +234,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
         InputStream input = param.getInput();
 
         // 如果是图片类型，需要查看图片相关处理参数
-        if (param.getType() == SysAttachment.TYPE_IMAGE) {
+        if (param.isNeedThumbnail()) {
             Integer width = param.getWidth();
             Integer height = param.getHeight();
             Double scale = param.getScale();
@@ -279,7 +246,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
             // 如需要修改缩略图质量和规模，可加入参数
             if (thumbnailWidth != null && thumbnailHeight != null) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
-                byte[] buffer = new byte[2048];
+                byte[] buffer = new byte[4096];
                 int len;
                 while ((len = input.read(buffer)) > -1) {
                     output.write(buffer, 0, len);
@@ -350,8 +317,8 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @param ids
      * @returns
      */
-    public List<SysAttachment> getAttachments(String... ids) {
-        return searchAll(new Condition(SysAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)));
+    public List<UploadAttachment> getAttachments(String... ids) {
+        return searchAll(new Condition(UploadAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)));
     }
 
     /**
@@ -362,8 +329,8 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      */
     public int deleteAttachments(String... ids) {
         if (ids != null && ids.length > 0) {
-            Example example = buildOrCreateExample(new Condition(SysAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)), modelType, false);
-            SysAttachment attachment = new SysAttachment();
+            Example example = buildOrCreateExample(new Condition(UploadAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)), modelType, false);
+            UploadAttachment attachment = new UploadAttachment();
             attachment.setDeleted(true);
             attachment.setDeleteTime(new Date());
             return getSqlMapper().updateByExampleSelective(attachment, example);
@@ -379,7 +346,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @param attachmentFiles
      * @return
      */
-    public List<SysAttachment> mergeAttachments(String newIds, MultipartFile... attachmentFiles) {
+    public List<UploadAttachment> mergeAttachments(String newIds, MultipartFile... attachmentFiles) {
         return replaceAndMergeAttachments(null, newIds, attachmentFiles);
     }
 
@@ -393,8 +360,8 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @param attachmentFiles
      * @return
      */
-    public List<SysAttachment> replaceAndMergeAttachments(String originIds, String newIds, MultipartFile... attachmentFiles) {
-        List<SysAttachment> newAttList = null;
+    public List<UploadAttachment> replaceAndMergeAttachments(String originIds, String newIds, MultipartFile... attachmentFiles) {
+        List<UploadAttachment> newAttList = null;
         if (newIds != null && newIds.length() != 0) {
             newAttList = getAttachments(newIds.split(","));
         }
@@ -408,7 +375,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
             String[] originIdArray = originIds.split(",");
             for (String oid : originIdArray) {
                 boolean del = true;
-                for (SysAttachment att : newAttList) {
+                for (UploadAttachment att : newAttList) {
                     if (att.getId().equals(oid)) {
                         del = false;
                         break;
@@ -427,7 +394,7 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
         if (attachmentFiles != null) {
             for (MultipartFile file : attachmentFiles) {
                 if (file != null) {
-                    SysAttachment a = createAttachment(file);
+                    UploadAttachment a = createAttachment(file);
                     newAttList.add(a);
                 }
             }
@@ -442,10 +409,10 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      * @param attachments
      * @return
      */
-    public String splicingAttachmentId(List<SysAttachment> attachments) {
+    public String splicingAttachmentId(List<UploadAttachment> attachments) {
         if (attachments != null && attachments.size() > 0) {
             String str = "";
-            for (SysAttachment attachment : attachments) {
+            for (UploadAttachment attachment : attachments) {
                 str += attachment.getId() + ",";
             }
             return str.substring(0, str.length() - 1);
@@ -458,14 +425,14 @@ public class SysAttachmentService extends ServiceSupport<SysAttachment> {
      */
     public int cleanAttachmentFile() {
         int count = 0;
-        List<SysAttachment> list = searchAll(
+        List<UploadAttachment> list = searchAll(
                 new Condition[]{
-                        new Condition(SysAttachment.FIELD_DELETED, QueryType.EQUAL, true),
-                        new Condition(SysAttachment.FIELD_DELETE_TIME, QueryType.LESS_THAN, new Date(System.currentTimeMillis() - (expireDay * 60L * 60 * 24 * 1000))),
+                        new Condition(UploadAttachment.FIELD_DELETED, QueryType.EQUAL, true),
+                        new Condition(UploadAttachment.FIELD_DELETE_TIME, QueryType.LESS_THAN, new Date(System.currentTimeMillis() - (expireDay * 60L * 60 * 24 * 1000))),
                 },
-                SysAttachment.class, true);
+                UploadAttachment.class, true);
 
-        for (SysAttachment att : list) {
+        for (UploadAttachment att : list) {
             String id = att.getId();
             if (deleteFile(id, att.getRelativePath()) &&
                     deleteFile(id, att.getThumbnailRelativePath())) {

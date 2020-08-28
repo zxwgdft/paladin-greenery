@@ -3,9 +3,7 @@ package com.paladin.organization.config;
 import com.paladin.framework.security.SHATokenProvider;
 import com.paladin.framework.security.TokenProvider;
 import com.paladin.framework.service.DataContainerManager;
-import com.paladin.framework.service.FileStoreService;
 import com.paladin.framework.service.ServiceSupportManager;
-import com.paladin.framework.service.impl.FtpFileStoreService;
 import com.paladin.framework.spring.SpringBeanHelper;
 import com.paladin.framework.spring.SpringContainerManager;
 import com.paladin.framework.utils.StringUtil;
@@ -78,21 +76,5 @@ public class OrganizationConfiguration {
         return new ServiceSupportManager();
     }
 
-    /**
-     * 文件存储服务
-     *
-     * @return
-     */
-    @Bean
-    public FileStoreService getFileStoreService(Environment env) {
-        String host = env.getProperty("paladin.file.ftp-host");
-        String port = env.getProperty("paladin.file.ftp-port");
-        String username = env.getProperty("paladin.file.ftp-username");
-        String password = env.getProperty("paladin.file.ftp-password");
-        String visitHost = env.getProperty("paladin.file.ftp-visit-host");
-        String visitPort = env.getProperty("paladin.file.ftp-visit-port");
-        return new FtpFileStoreService(host, Integer.valueOf(port),
-                username, password, visitHost, Integer.valueOf(visitPort));
-    }
 
 }

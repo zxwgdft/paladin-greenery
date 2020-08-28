@@ -2,7 +2,6 @@ package com.paladin.organization.service;
 
 import com.paladin.framework.service.ServiceSupport;
 import com.paladin.organization.model.Personnel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PersonnelService extends ServiceSupport<Personnel> {
 
-    @Autowired
-    private SysAttachmentService attachmentService;
 
     /**
      * 功能描述: <根据用户ID删除人员基本信息>

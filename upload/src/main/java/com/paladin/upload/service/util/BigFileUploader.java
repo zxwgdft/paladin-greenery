@@ -1,4 +1,4 @@
-package com.paladin.upload.service;
+package com.paladin.upload.service.util;
 
 import com.paladin.framework.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
-public class FileUploader {
+public class BigFileUploader {
 
     private String id;
     private int chunkCount;
@@ -34,7 +34,7 @@ public class FileUploader {
 
     private FileUploadListener uploadListener;
 
-    public FileUploader(UploadFile uploadFile, FileUploadListener uploadListener, String targetFolder) {
+    public BigFileUploader(UploadBigFile uploadFile, FileUploadListener uploadListener, String targetFolder) {
         this.id = uploadFile.getId();
         this.uploadListener = uploadListener;
         this.chunkSize = 1024L * 1024 * uploadFile.getChunkSize();
@@ -186,19 +186,19 @@ public class FileUploader {
      */
     public interface FileUploadListener {
         // 文件上传完毕，并且成功重命名
-        void completedSuccess(FileUploader uploader);
+        void completedSuccess(BigFileUploader uploader);
 
         // 文件上传完毕，但是最终出现异常（文件重命名出现异常）
-        void completedError(FileUploader uploader);
+        void completedError(BigFileUploader uploader);
 
         // 上传块成功，应该更新上传进度
-        void uploadChunkSuccess(FileUploader uploader, int chunkIndex);
+        void uploadChunkSuccess(BigFileUploader uploader, int chunkIndex);
 
         // 上传块异常
-        void uploadChunkError(FileUploader uploader, int chunkIndex, Throwable throwable);
+        void uploadChunkError(BigFileUploader uploader, int chunkIndex, Throwable throwable);
 
         // 上传异常，应该结束该次上传
-        void uploadError(FileUploader uploader);
+        void uploadError(BigFileUploader uploader);
     }
 
 }

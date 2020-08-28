@@ -1,4 +1,4 @@
-package com.paladin.upload.service;
+package com.paladin.upload.service.util;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class UploadFile {
+public class UploadBigFile {
 
     // 上传文件ID
     public String id;
