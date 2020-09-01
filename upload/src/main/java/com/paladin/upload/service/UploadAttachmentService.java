@@ -1,6 +1,7 @@
 package com.paladin.upload.service;
 
 import com.paladin.framework.exception.BusinessException;
+import com.paladin.framework.security.WebSecurityManager;
 import com.paladin.framework.service.Condition;
 import com.paladin.framework.service.FileStoreService;
 import com.paladin.framework.service.QueryType;
@@ -201,6 +202,10 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
         }
 
         attachment.setStoreType(fileStoreService.getStoreType());
+
+        String creator = WebSecurityManager.getCurrentUserSession().getUserId();
+        attachment.setCreateBy(creator);
+
         save(attachment);
         return attachment;
     }

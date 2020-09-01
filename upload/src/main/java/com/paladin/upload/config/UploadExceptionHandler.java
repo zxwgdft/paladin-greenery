@@ -24,18 +24,18 @@ public class UploadExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Object> businessExceptionHandler(BusinessException ex, WebRequest request) {
-        return handleExceptionInternal(ex, R.fail(ex.getMessage(), ex.getData()), new HttpHeaders(), ex.getHttpStatus(), request);
+        return handleExceptionInternal(ex, ex.getData(), new HttpHeaders(), ex.getHttpStatus(), request);
     }
 
     @ExceptionHandler(SystemException.class)
     public ResponseEntity<Object> systemExceptionHandler(SystemException ex, WebRequest request) {
         log.error("系统异常！", ex);
-        return handleExceptionInternal(ex, R.fail(ex.getMessage()), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return handleExceptionInternal(ex, null, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> systemExceptionHandler(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, R.fail(ex.getMessage()), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return handleExceptionInternal(ex, null, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
 

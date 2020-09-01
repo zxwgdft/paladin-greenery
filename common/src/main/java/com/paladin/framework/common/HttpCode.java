@@ -24,6 +24,10 @@ public enum HttpCode implements IResultCode {
 
     FORBIDDEN(403, "没有访问或操作权限"),
 
+    // 自定义code
+    REQUEST_VALID_ERROR(490, "请求参数验证未通过"),
+
+
     // 请求成功，扩展code
     CREATED(201, "Created"),
 

@@ -22,6 +22,9 @@ public class Personnel extends BaseModel {
     @ApiModelProperty(value = "ID")
     private String id;
 
+    @ApiModelProperty(value = "账号")
+    private String account;
+
     @ApiModelProperty(value = "身份证件种类")
     private Integer identificationType;
 
@@ -40,15 +43,12 @@ public class Personnel extends BaseModel {
     @ApiModelProperty(value = "手机号码")
     private String cellphone;
 
-    @ApiModelProperty(value = "办公室电话")
-    private String officePhone;
-
     @ApiModelProperty(value = "用户图片")
     private String profilePhoto;
 
     @ApiModelProperty(value = "机构ID")
     private String agencyId;
-    
+
     @ApiModelProperty(value = "国籍")
     private Integer nationality;
 
@@ -57,15 +57,6 @@ public class Personnel extends BaseModel {
 
     @ApiModelProperty(value = "出生日期")
     private Date birthday;
-
-    @ApiModelProperty(value = "开始工作时间")
-    private Date startWorkTime;
-
-    @ApiModelProperty(value = "入党时间")
-    private Date joinPartyTime;
-
-    @ApiModelProperty(value = "政治面貌")
-    private Integer politicalAffiliation;
 
     @ApiModelProperty(value = "兴趣爱好")
     private String interest;

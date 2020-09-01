@@ -21,6 +21,9 @@
 </head>
 
 <body>
+<section class="content-header">
+    <h1>人员管理</h1>
+</section>
 <section class="content">
     <div class="box box-solid">
         <div id="result" class="box-body">
@@ -30,12 +33,6 @@
                            style="width:220px;float:left;margin-right:10px"
                            name="name"
                            placeholder="请输入查询的姓名"/>
-
-                    <select name="identificationType"
-                            style="width:220px;float:left;margin-right:10px"
-                            class="form-control tonto-select-constant">
-                        <option value="">请选择查询证件类型</option>
-                    </select>
 
                     <button type="button"
                             class="btn btn-primary btn-flat tonto-btn-search"
@@ -131,7 +128,7 @@
                     }
                 ]
             ],
-            height:,
+
             url: baseUrl + '/organization/personnel/find',
             searchbar: '#searchbar',
             exportUrl: baseUrl + '/organization/personnel/export',

@@ -1,8 +1,8 @@
 package com.paladin.framework.spring;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,12 +13,12 @@ import java.util.Map;
  * @author TontoZhou
  */
 @Slf4j
-public class SpringContainerManager implements ApplicationListener<ContextRefreshedEvent> {
+public class SpringContainerManager implements ApplicationRunner {
 
     private boolean initialized = false;
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextEvent) {
+    public void run(ApplicationArguments args) throws Exception {
 
         // 由于web项目会存在两个容器导致该事件发生两次，web容器后发生所以这里选用后发生的有父容器的
         if (!initialized) {
@@ -48,8 +48,11 @@ public class SpringContainerManager implements ApplicationListener<ContextRefres
                 }
             }
 
+            log.info("===>初始化SpringContainer结束");
+
             initialized = true;
         }
     }
+
 
 }

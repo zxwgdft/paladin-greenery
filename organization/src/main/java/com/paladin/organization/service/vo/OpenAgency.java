@@ -1,5 +1,6 @@
 package com.paladin.organization.service.vo;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ApiModel
 public class OpenAgency {
 
     @ApiModelProperty(value = "机构代码")

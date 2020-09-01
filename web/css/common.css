@@ -131,3 +131,9 @@ p, dd {
 	text-align: center;
 	margin-top:30px;
 }
+
+.fixed-table-body {
+	overflow-x: auto;
+	overflow-y: auto;
+	height: auto;
+}

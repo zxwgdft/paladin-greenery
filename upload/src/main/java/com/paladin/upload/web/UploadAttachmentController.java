@@ -5,7 +5,9 @@ import com.paladin.upload.service.FileResourceContainer;
 import com.paladin.upload.service.UploadAttachmentService;
 import com.paladin.upload.service.dto.FileCreateParam;
 import com.paladin.upload.service.vo.FileResource;
-import com.paladin.upload.web.dto.UploadPicture;
+import com.paladin.upload.web.dto.UploadFileBase64;
+import com.paladin.upload.web.dto.UploadPictureBase64;
+import com.paladin.upload.web.dto.UploadPictureForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +43,18 @@ public class UploadAttachmentController {
     @ApiOperation(value = "上传附件文件")
     @PostMapping("/upload/file")
     @ResponseBody
-    public FileResource uploadFile(@RequestParam("file") MultipartFile file) {
-        return FileResourceContainer.convert(attachmentService.createAttachment(file));
+    public String uploadFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String filename) {
+        return attachmentService.createAttachment(file, filename).getId();
     }
 
     @ApiOperation(value = "上传多个附件文件")
     @PostMapping("/upload/files")
     @ResponseBody
-    public FileResource[] uploadFiles(@RequestParam("files") MultipartFile[] files) {
-        FileResource[] result = new FileResource[files.length];
+    public String[] uploadFiles(@RequestParam("files") MultipartFile[] files) {
+        String[] result = new String[files.length];
         for (int i = 0; i < files.length; i++) {
             MultipartFile file = files[i];
-            result[i] = FileResourceContainer.convert(attachmentService.createAttachment(file));
+            result[i] = attachmentService.createAttachment(file).getId();
         }
         return result;
     }
@@ -60,29 +62,44 @@ public class UploadAttachmentController {
     @ApiOperation(value = "上传base64格式的附件文件")
     @PostMapping("/upload/file/base64")
     @ResponseBody
-    public FileResource uploadFileByBase64(@RequestParam String fileStr, @RequestParam(required = false) String filename) {
-        UploadAttachment result = attachmentService.createAttachment(fileStr, filename == null || filename.length() == 0 ? "附件" : filename);
-        return FileResourceContainer.convert(result);
+    public String uploadFileByBase64(@RequestBody UploadFileBase64 uploadFile) {
+        UploadAttachment result = attachmentService.createAttachment(uploadFile.getBase64str(), uploadFile.getFilename());
+        return result.getId();
     }
 
-    @ApiOperation(value = "上传图片，图片过大会被压缩")
+    @ApiOperation(value = "上传base64格式的附件文件")
+    @PostMapping("/upload/files/base64")
+    @ResponseBody
+    public String[] uploadFilesByBase64(@RequestBody List<UploadFileBase64> uploadFiles) {
+        String[] result = new String[uploadFiles.size()];
+        int i = 0;
+        for (UploadFileBase64 uploadFile : uploadFiles) {
+            result[i++] = attachmentService.createAttachment(uploadFile.getBase64str(), uploadFile.getFilename()).getId();
+        }
+        return result;
+    }
+
+    @ApiOperation(value = "上传图片，并生成缩略图")
     @PostMapping("/upload/picture")
     @ResponseBody
-    public FileResource uploadPicture(@RequestParam MultipartFile file,
-                                      @RequestParam(required = false) Integer thumbnailWidth,
-                                      @RequestParam(required = false) Integer thumbnailHeight) {
-        return FileResourceContainer.convert(attachmentService.createPictureAndThumbnail(file, null, thumbnailWidth, thumbnailHeight));
+    public String uploadPicture(@RequestBody UploadPictureForm uploadPicture) {
+        return attachmentService.createPictureAndThumbnail(
+                uploadPicture.getFile(),
+                uploadPicture.getFilename(),
+                uploadPicture.getThumbnailWidth(),
+                uploadPicture.getThumbnailHeight()
+        ).getId();
     }
 
 
     @ApiOperation(value = "上传base64格式图片，并生成缩略图")
     @PostMapping("/upload/picture/base64")
     @ResponseBody
-    public FileResource uploadPicture(@RequestBody UploadPicture uploadPicture) {
+    public String uploadPicture(@RequestBody UploadPictureBase64 uploadPicture) {
         FileCreateParam param = new FileCreateParam(uploadPicture.getBase64str(), uploadPicture.getFilename());
         param.setThumbnailHeight(uploadPicture.getThumbnailHeight());
         param.setThumbnailWidth(uploadPicture.getThumbnailWidth());
-        return FileResourceContainer.convert(attachmentService.createPictureAndThumbnail(param));
+        return attachmentService.createPictureAndThumbnail(param).getId();
     }
 
 

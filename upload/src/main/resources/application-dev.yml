@@ -10,7 +10,7 @@ server:
 
 spring:
   application:
-    name: ${USERNAME}-service-upload
+    name: greenery-upload
   cloud:
     nacos:
       server-addr: 172.16.16.120:8848
@@ -19,8 +19,8 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
   datasource:
-    name: upload
-    url: jdbc:mysql://172.16.16.120:3306/upload?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    name: greenery_upload
+    url: jdbc:mysql://172.16.16.120:3306/greenery_upload?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
     username: netin
     password: 123456
     type: com.zaxxer.hikari.HikariDataSource

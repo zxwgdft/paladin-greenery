@@ -3,21 +3,19 @@ package com.paladin.organization.web;
 
 import com.paladin.framework.common.HttpCode;
 import com.paladin.framework.common.R;
-import com.paladin.framework.service.OffsetPage;
 import com.paladin.framework.service.PageResult;
 import com.paladin.framework.spring.web.ControllerSupport;
-import com.paladin.framework.utils.UUIDUtil;
-import com.paladin.organization.model.Personnel;
 import com.paladin.organization.service.PersonnelService;
-import com.paladin.organization.service.dto.personnel.PersonnelSave;
-import com.paladin.organization.service.dto.personnel.PersonnelUpdate;
+import com.paladin.organization.service.dto.PersonnelQuery;
+import com.paladin.organization.service.dto.PersonnelSave;
+import com.paladin.organization.service.dto.PersonnelUpdate;
+import com.paladin.organization.service.vo.OpenPersonnel;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
@@ -31,62 +29,42 @@ import javax.validation.Valid;
 @RequestMapping("/organization/personnel")
 public class PersonnelController extends ControllerSupport {
 
-//    public static final int ATTACHMENTS_MAX_SIZE = 4;
-
     @Autowired
     private PersonnelService personnelService;
 
-//    @Autowired
-//    private SysAttachmentService attachmentService;
-
-
     @ApiOperation(value = "获取某个人员信息")
     @GetMapping("/get")
-    public Personnel getPersonnel(@RequestParam() String userId) {
-        return personnelService.get(userId);
+    public OpenPersonnel getPersonnel(@RequestParam() String id) {
+        return personnelService.get(id, OpenPersonnel.class);
     }
 
 
     @ApiOperation(value = "获取人员信息列表-分页")
     @GetMapping("/find")
-    public PageResult<Personnel> findPersonnel(OffsetPage param) {
-        return personnelService.searchPage(param);
+    public PageResult<OpenPersonnel> findPersonnel(PersonnelQuery param) {
+        return personnelService.searchPage(param, OpenPersonnel.class);
     }
 
 
     @ApiOperation(value = "保存人员基本信息")
     @PostMapping("/save")
-    public R save(@Valid PersonnelSave save, @RequestParam(required = false) MultipartFile[] profilePhotoFile, BindingResult bindingResult) {
+    public R save(@Valid PersonnelSave save, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return R.fail(HttpCode.BAD_REQUEST, "请求参数异常", bindingResult.getAllErrors());
+            return validErrorHandler(bindingResult);
         }
-//        if (profilePhotoFile != null && profilePhotoFile.length > 0) {
-//            List<SysAttachment> attachments = attachmentService.mergeAttachments(save.getProfilePhoto(), profilePhotoFile);
-//            if (attachments != null && attachments.size() > 1) {
-//                return R.fail(HttpCode.BAD_REQUEST, "用户头像只能上传一张");
-//            }
-//            save.setProfilePhoto(attachmentService.splicingAttachmentId(attachments));
-//        }
-        Personnel personnel = new Personnel();
-        personnel.setId(UUIDUtil.createUUID());
-        return R.success(personnelService.save(beanCopy(save, personnel)));
+        personnelService.savePersonnel(save);
+        return R.success();
     }
 
 
     @ApiOperation(value = "修改人员基本信息")
     @PostMapping("/update")
-    public R update(@Valid PersonnelUpdate update, @RequestParam(required = false) MultipartFile[] profilePhotoFile, BindingResult bindingResult) {
+    public R update(@Valid PersonnelUpdate update, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return R.fail(HttpCode.BAD_REQUEST, "请求参数异常", bindingResult.getAllErrors());
         }
-//        if (profilePhotoFile != null && profilePhotoFile.length > 0) {
-//            List<SysAttachment> attachments = attachmentService.mergeAttachments(update.getProfilePhoto(), profilePhotoFile);
-//            if (attachments != null && attachments.size() > 1) {
-//                return R.fail(HttpCode.BAD_REQUEST, "用户头像只能上传一张");
-//            }
-//            update.setProfilePhoto(attachmentService.splicingAttachmentId(attachments));
-//        }
-        return R.success(personnelService.update(beanCopy(update, personnelService.get(update.getId()))));
+        personnelService.updatePersonnel(update);
+        return R.success();
     }
 
     @ApiOperation(value = "删除人员基本信息")

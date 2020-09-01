@@ -300,30 +300,42 @@ var baseUrl = "http://localhost:19000";
                     // ajax请求返回未登录状态处理
                     // 暂时跳转主页面到登录页面，有时间可以做弹出登录窗口登录，成功后继续执行ajax请求处理
                     $.failAlert("请先登录", function () {
-                        top.location.href = "/";
+                        console.log(options);
+                        // $.login(null, null, function () {
+                        //
+                        // });
                     });
                     break;
-                case 490:
-                    var errorHtml, error = response.data;
-                    if (error && $.isArray(error)) {
-                        var errorHtml = "<ul>数据验证失败："
-                        error.forEach(function (item) {
-                            var el = item[1];
-                            var errorMsg = item[2];
-                            // 存在可能对不上input输入框，加上存在前端验证保证大部分情况正确，所以这里才有用户体验稍差的方式
-                            // form.find("#" + el + ",[name='" + el + "']").each(function() {
-                            //     layer.tips(errorMsg, $(this), { time: 2000, tips: [3, 'red'] });
-                            // });
-                            errorHtml += "<li>" + errorMsg + "</li>";
-                        });
-                        errorHtml += "</ul>"
+                default: {
+                    var error = xhr.responseJSON;
+
+                    if (error) {
+                        var code = error.code;
+                        var data = error.data;
+
+                        if (code == 490) {
+                            // 数据校验错误
+                            var errorHtml = "<ul>数据验证失败：";
+                            if ($.isArray(data)) {
+                                data.forEach(function (item) {
+                                    var errorMsg = item[2];
+                                    // 存在可能对不上input输入框，加上存在前端验证保证大部分情况正确，所以这里才有用户体验稍差的方式
+                                    // form.find("#" + el + ",[name='" + el + "']").each(function() {
+                                    //     layer.tips(errorMsg, $(this), { time: 2000, tips: [3, 'red'] });
+                                    // });
+                                    errorHtml += "<li>" + errorMsg + "</li>";
+                                });
+                            }
+                            errorHtml += "</ul>"
+                            $.errorAlert(errorHtml);
+                            return;
+                        }
+
+                        $.errorMessage(error.message || "操作失败");
                     } else {
-                        errorHtml = response.message || error || "数据验证异常";
+                        $.errorMessage(exc || "操作失败");
                     }
-                    $.errorAlert(errorHtml);
-                    break;
-                default:
-                    $.errorMessage(response.message || "操作失败");
+                }
             }
         }
     );
@@ -342,12 +354,12 @@ var baseUrl = "http://localhost:19000";
             });
         },
         setToken: function (token) {
-            $(document).data("jwt", token);
+            window.localStorage.setItem("jwt", token);
             // 定时刷新
             setTimeout($.refreshToken, 3000000);
         },
         getToken: function () {
-            return $(document).data("jwt");
+            return window.localStorage.getItem("jwt");
         },
         refreshToken: function () {
             $.getAjax(baseUrl + "/organization/authenticate/refresh", function (openToken) {
@@ -395,6 +407,10 @@ var baseUrl = "http://localhost:19000";
                     }
                 };
             }
+
+            var headers = options.headers || {};
+            headers['Authorization'] = $.getToken();
+            options.headers = headers;
 
             options.dataType = options.dataType || 'json';
             $.ajax(options);
@@ -2101,6 +2117,7 @@ function _initForm(container) {
                 url: submitBtn.data('action') ? submitBtn.data('action') : form.attr('action'),
                 dataType: 'json',
                 type: 'post',
+                headers: {'Authorization': $.getToken()},
                 beforeSubmit: function (arr, $form, options) {
                     if (typeof formConfig.beforeCallback === 'function') {
                         if (formConfig.beforeCallback(arr, $form, options) === false) {

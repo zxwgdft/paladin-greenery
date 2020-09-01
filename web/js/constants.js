@@ -1,4 +1,6 @@
 var __cd = [
+    ['nationality-type', '1', '中国', 1],
+    ['nationality-type', '2', '外国', 2],
     ['academic-degree-type', '1', '名誉博士', 1],
     ['academic-degree-type', '2', '博士', 2],
     ['academic-degree-type', '3', '硕士', 3],
@@ -450,8 +452,8 @@ var __cd = [
     ['selection-grade-type', '3', 'C类', 3],
     ['selection-grade-type', '4', 'D类', 4],
     ['selection-grade-type', '5', 'E类', 5],
-    ['sex-type', '0', '女', 2],
     ['sex-type', '1', '男', 1],
+    ['sex-type', '2', '女', 2],
     ['work-post-type', '1', '医生', 1],
     ['work-post-type', '2', '护士', 2],
     ['work-post-type', '3', '行政后勤', 3]

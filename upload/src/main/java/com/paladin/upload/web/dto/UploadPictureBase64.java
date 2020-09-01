@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @ApiModel("上传图片")
-public class UploadPicture {
+public class UploadPictureBase64 {
 
     @ApiModelProperty("文件名称")
     private String filename;

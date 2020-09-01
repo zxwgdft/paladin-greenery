@@ -151,11 +151,8 @@ public class OrgSecurityManager extends WebSecurityManager implements HandlerInt
                 throw new BusinessException("登录用户不存在");
             }
 
-            if (sysUser.getIsSysAdmin()) {
-                userSession.isSystemAdmin = true;
-            }
-
-            userSession.personnelId = sysUser.getPersonnelId();
+            userSession.isSystemAdmin = sysUser.getUserType() == SysUser.USER_TYPE_ADMIN;
+            userSession.personnelId = sysUser.getUserId();
             userSession.userName = sysUser.getAccount();
 
             // TODO 加载权限

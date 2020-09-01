@@ -133,7 +133,7 @@ function generateEditFormHtml(options, hide) {
         '<div id="' + id + '_edit" class="' + options.editBodyClass + '" ' + (hide == true ? 'style="display: none"' : '') + '>\n' +
         '   <form id="' + id + '_form" action="' + options.url + '" method="post" class="form-horizontal ' + options.editFormClass + '" style="' + options.editFormStyle + '">\n';
 
-    var filedsetClosed, fieldsetIndex = -1;
+    var fieldsetClosed, fieldsetIndex = -1;
 
     for (var i = 0; i < columns.length;) {
         var column = columns[i++],
@@ -151,7 +151,7 @@ function generateEditFormHtml(options, hide) {
                 currentSize = 0;
             }
 
-            if (filedsetClosed === false) {
+            if (fieldsetClosed === false) {
                 html += '</fieldset>\n';
             }
 
@@ -161,7 +161,7 @@ function generateEditFormHtml(options, hide) {
                 html += '<legend>' + column.legend + '</legend>\n';
             }
 
-            filedsetClosed = false;
+            fieldsetClosed = false;
             fieldsetIndex = i;
             i--;
             continue;
@@ -198,7 +198,7 @@ function generateEditFormHtml(options, hide) {
             currentColspan = options.maxColspan;
         }
 
-        if (currentColspan >= options.maxColspan) {
+        if (column.endRow === true || currentColspan >= options.maxColspan) {
             html += '</div>\n';
             currentColspan = 0;
             currentSize = 0;
@@ -209,7 +209,7 @@ function generateEditFormHtml(options, hide) {
         html += '</div>\n';
     }
 
-    if (filedsetClosed === false) {
+    if (fieldsetClosed === false) {
         html += '</fieldset>\n';
     }
 
@@ -301,7 +301,7 @@ function generateViewFormHtml(options) {
         '<div id="' + id + '_view" class="' + options.viewBodyClass + '">\n' +
         '    <form class="form-horizontal ' + options.viewFormClass + '"  style="' + options.viewFormStyle + '">\n';
 
-    var filedsetClosed, fieldsetIndex = -1;
+    var fieldsetClosed, fieldsetIndex = -1;
 
     for (var i = 0; i < columns.length;) {
         var column = columns[i++],
@@ -315,7 +315,7 @@ function generateViewFormHtml(options) {
                 currentSize = 0;
             }
 
-            if (filedsetClosed === false) {
+            if (fieldsetClosed === false) {
                 html += '</fieldset>\n';
             }
 
@@ -325,7 +325,7 @@ function generateViewFormHtml(options) {
                 html += '<legend>' + column.legend + '</legend>\n';
             }
 
-            filedsetClosed = false;
+            fieldsetClosed = false;
             fieldsetIndex = i;
             i--;
             continue;
@@ -364,7 +364,7 @@ function generateViewFormHtml(options) {
             currentColspan = options.maxColspan;
         }
 
-        if (currentColspan >= options.maxColspan) {
+        if (column.endRow === true || currentColspan >= options.maxColspan) {
             html += '</div>\n';
             currentColspan = 0;
             currentSize = 0;
@@ -375,7 +375,7 @@ function generateViewFormHtml(options) {
         html += '</div>\n';
     }
 
-    if (filedsetClosed === false) {
+    if (fieldsetClosed === false) {
         html += '</fieldset>\n';
     }
 

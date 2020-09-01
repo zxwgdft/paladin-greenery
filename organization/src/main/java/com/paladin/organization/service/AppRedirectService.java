@@ -105,7 +105,7 @@ public class AppRedirectService {
         }
 
         // TODO 判断是否有权跳转应用
-        String personnelId = sysUser.getPersonnelId();
+        String personnelId = sysUser.getUserId();
         if (StringUtil.isEmpty(personnelId)) {
             throw new BusinessException("未绑定人员的用户无法重定向到应用");
         }

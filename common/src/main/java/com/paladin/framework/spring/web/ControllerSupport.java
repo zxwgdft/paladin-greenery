@@ -2,7 +2,9 @@ package com.paladin.framework.spring.web;
 
 import com.paladin.framework.common.HttpCode;
 import com.paladin.framework.common.R;
+import com.paladin.framework.exception.BusinessException;
 import com.paladin.framework.utils.convert.SimpleBeanCopyUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
@@ -28,7 +30,7 @@ public class ControllerSupport {
             result[i++] = new String[]{error.getCode(), error.getField(), error.getDefaultMessage()};
         }
 
-        return R.fail(HttpCode.BAD_REQUEST, "请求参数验证未通过", result);
+        throw new BusinessException(HttpStatus.BAD_REQUEST, "", R.fail(HttpCode.REQUEST_VALID_ERROR, "请求参数验证未通过", result));
     }
 
     protected <T> T beanCopy(Object source, T target) {

@@ -1,0 +1,152 @@
+<html>
+
+<head>
+    <title>Greenery</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+    <link rel="stylesheet" href="../assets/bootstrap3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-table/bootstrap-table.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-treeview/bootstrap-treeview.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-fileinput/css/fileinput.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap-select/css/bootstrap-select.min.css"/>
+    <link rel="stylesheet" href="../assets/bootstrap3-switch/bootstrap-switch.min.css">
+    <link rel="stylesheet" href="../assets/adminLTE/css/AdminLTE.min.css"/>
+    <link rel="stylesheet" href="../assets/iCheck/square/_all.css"/>
+    <link rel="stylesheet" href="../assets/layer/theme/default/layer.css"/>
+    <link rel="stylesheet" href="../assets/laydate/theme/default/laydate.css"/>
+    <link rel="stylesheet" href="../css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../css/ionicons.min.css"/>
+    <link rel="stylesheet" href="../css/common.css"/>
+</head>
+
+<body>
+<section class="content-header">
+    <h1>人员管理</h1>
+    <ol class="breadcrumb">
+        <li><a href="/personnel_index.html"><i class="fa fa-table"></i>人员列表</a></li>
+        <li class="active">人员编辑</li>
+    </ol>
+</section>
+<section class="content">
+</section>
+<div>
+    <script type="text/javascript" src="../assets/jquery/jquery-2.2.4.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-table/bootstrap-table.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-fileinput/js/fileinput.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-suggest/bootstrap-suggest.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-select/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap-select/js/i18n/defaults-zh_CN.min.js"></script>
+    <script type="text/javascript" src="../assets/adminLTE/js/adminlte.min.js"></script>
+    <script type="text/javascript" src="../assets/jquery-validation/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="../assets/jquery-form/jquery.form.min.js"></script>
+    <script type="text/javascript" src="../assets/layer/layer.js"></script>
+    <script type="text/javascript" src="../assets/laydate/laydate.js"></script>
+    <script type="text/javascript" src="../assets/iCheck/icheck.min.js"></script>
+    <script type="text/javascript" src="../assets/bootstrap3-switch/bootstrap-switch.min.js"></script>
+    <script type="text/javascript" src="../js/constants.js"></script>
+    <script type="text/javascript" src="../js/common.js"></script>
+    <script type="text/javascript" src="../js/common-model.js"></script>
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        var options = {
+            id: "model",
+            name: "编辑人员信息",
+            url: baseUrl + '/organization/personnel/save',
+            columns: [
+                {title: "姓名", name: "name", required: "required", maxLength: 20, inputType: "TEXT"},
+                {title: "曾用名", name: "usedName", maxLength: 20, inputType: "TEXT"},
+                {title: "性别", name: "sex", enum: "sex-type", inputType: "RADIO"},
+                {
+                    title: "账号",
+                    name: "account",
+                    required: "required",
+                    minLength: 6,
+                    maxLength: 20,
+                    inputType: "TEXT"
+                },
+                {
+                    // 从服务器获取单位树形下拉数据，idField 和nameField分别为数据中的value和name
+                    title: "所属机构",
+                    name: "agencyId",
+                    inputType: "SELECT-SERVER",
+                    required: "required",
+                    url: baseUrl + "/organization/agency/find/all/simple",
+                    idField: "code",
+                    nameField: "name",
+                    endRow: true
+                },
+                {
+                    title: "证件类型",
+                    name: "identificationType",
+                    enum: "identification-type",
+                    required: "required",
+                    inputType: "SELECT"
+                },
+                {
+                    title: "证件号码",
+                    name: "identificationNo",
+                    required: "required",
+                    maxLength: 32,
+                    inputType: "TEXT",
+                    endRow: true
+                },
+                {
+                    title: "手机号码",
+                    name: "cellphone",
+                    maxLength: 20,
+                    inputType: "TEXT",
+                    required: "required",
+                    attr: {
+                        "data-type": "cellphone",
+                        "placeholder": "请输入本人的手机号码"
+                    }
+                },
+                {title: "出生日期", name: "birthday", inputType: "DATE"},
+                {title: "民族", name: "nation", enum: "nation-type", inputType: "SELECT"},
+                {title: "国籍", name: "nationality", enum: "nationality-type", inputType: "SELECT"},
+                {title: "兴趣爱好", name: "interest", maxLength: 200, inputType: "TEXT"},
+                {title: "籍贯", name: "nativePlace", maxLength: 200, inputType: "TEXT"},
+                {
+                    title: "用户头像",
+                    name: "profilePhoto",
+                    inputType: "ATTACHMENT",
+                    fileName: "profilePhotoFile",
+                    isPicture: true
+                }
+            ]
+        }
+
+        var html = generateEditHtml(options);
+        $(".content").html(html);
+        $.initComponent($(".content"));
+
+        var model = new tonto.Model("model", options.columns, {
+            pattern: 'edit',
+            back: "/personnel_index.html"
+            // extraParam: null, // 可以为方法或对象，用于扩展表单外提交的字段
+            // 提交表单前调取的方法，如果返回false则不提交
+            // beforeSubmit: function (formData) {
+            // },
+            // 如果想通过自己的方式提交数据，则可以配置submitClick，
+            // 以下代码直接读取了编辑中的表单数据并设置为数据源，然后切换到view状态，达到不提交服务器的作用
+            // 还可以在这里通过json格式提交复杂对象请求，例如上面的地址
+            // submitClick: function(that){
+            //     if (that.formBody.valid()) {
+            //         var d = that.getFormData();
+            //         that.setData(d);
+            //     }
+            // },
+        });
+        model.setData(null);
+    });
+
+</script>
+</body>
+
+</html>

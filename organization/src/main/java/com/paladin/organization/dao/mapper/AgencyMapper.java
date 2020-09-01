@@ -7,6 +7,6 @@ import com.paladin.organization.model.Agency;
  * @author TontoZhou
  * @since 2019/12/12
  */
-public interface OrgAgencyMapper extends CustomMapper<Agency> {
+public interface AgencyMapper extends CustomMapper<Agency> {
 
 }

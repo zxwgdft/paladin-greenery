@@ -9,11 +9,11 @@ import com.paladin.framework.spring.SpringContainerManager;
 import com.paladin.framework.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.data.mongodb.MongoTransactionManager;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author TontoZhou
@@ -45,12 +45,12 @@ public class OrganizationConfiguration {
     }
 
     /**
-     * mongodb事务管理器
+     * mongodb事务管理器，mongo事务管理开启后，会对注解的服务方法开启事务
      */
-    @Bean
-    public MongoTransactionManager transactionManager(MongoDbFactory factory) {
-        return new MongoTransactionManager(factory);
-    }
+//    @Bean
+//    public MongoTransactionManager transactionManager(MongoDbFactory factory) {
+//        return new MongoTransactionManager(factory);
+//    }
 
     /**
      * spring container 管理器（用于spring加载完毕后运行的对象）
@@ -77,4 +77,12 @@ public class OrganizationConfiguration {
     }
 
 
+    /**
+     * 负载均衡加持的RestTemplate
+     */
+    @Bean
+    @LoadBalanced
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
 }
