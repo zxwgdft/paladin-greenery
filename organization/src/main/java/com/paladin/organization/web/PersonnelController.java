@@ -1,7 +1,6 @@
 package com.paladin.organization.web;
 
 
-import com.paladin.framework.common.HttpCode;
 import com.paladin.framework.common.R;
 import com.paladin.framework.service.PageResult;
 import com.paladin.framework.spring.web.ControllerSupport;
@@ -35,7 +34,7 @@ public class PersonnelController extends ControllerSupport {
     @ApiOperation(value = "获取某个人员信息")
     @GetMapping("/get")
     public OpenPersonnel getPersonnel(@RequestParam() String id) {
-        return personnelService.get(id, OpenPersonnel.class);
+        return personnelService.getPersonnel(id);
     }
 
 
@@ -61,7 +60,7 @@ public class PersonnelController extends ControllerSupport {
     @PostMapping("/update")
     public R update(@Valid PersonnelUpdate update, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return R.fail(HttpCode.BAD_REQUEST, "请求参数异常", bindingResult.getAllErrors());
+            return validErrorHandler(bindingResult);
         }
         personnelService.updatePersonnel(update);
         return R.success();

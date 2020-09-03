@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -57,6 +58,9 @@ public class PersonnelUpdate {
 
     @ApiModelProperty(value = "用户头像")
     private String profilePhoto;
+
+    @ApiModelProperty(value = "用户图片")
+    private MultipartFile profilePhotoFile;
 
     @ApiModelProperty(value = "国籍")
     private Integer nationality;

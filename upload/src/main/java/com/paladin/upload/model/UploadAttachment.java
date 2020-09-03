@@ -20,6 +20,12 @@ public class UploadAttachment {
 
     private String storeType;
 
+    private String businessId;
+
+    private String business;
+
+    private String fromService;
+
     private String name;
 
     private String suffix;

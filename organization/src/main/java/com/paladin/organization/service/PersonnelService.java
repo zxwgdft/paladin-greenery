@@ -3,15 +3,18 @@ package com.paladin.organization.service;
 import com.paladin.framework.exception.BusinessException;
 import com.paladin.framework.service.ServiceSupport;
 import com.paladin.framework.utils.UUIDUtil;
-import com.paladin.framework.utils.convert.Base64Util;
 import com.paladin.framework.utils.convert.SimpleBeanCopyUtil;
 import com.paladin.organization.model.Personnel;
 import com.paladin.organization.service.dto.PersonnelSave;
 import com.paladin.organization.service.dto.PersonnelUpdate;
+import com.paladin.organization.service.dto.UploadFileBase64;
+import com.paladin.organization.service.vo.OpenPersonnel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author TontoZhou
@@ -24,11 +27,14 @@ public class PersonnelService extends ServiceSupport<Personnel> {
     private SysUserService sysUserService;
 
     @Autowired
-    private UploadService uploadService;
+    private UploadFileService uploadFileService;
 
-    @Autowired
-    private UploadMultipartFileService uploadMultipartFileService;
 
+    public OpenPersonnel getPersonnel(String id) {
+        OpenPersonnel personnel = get(id, OpenPersonnel.class);
+        personnel.setProfilePhotoFile(uploadFileService.getAttachmentResource(personnel.getProfilePhoto()));
+        return personnel;
+    }
 
     @Transactional
     public void savePersonnel(PersonnelSave save) {
@@ -41,14 +47,9 @@ public class PersonnelService extends ServiceSupport<Personnel> {
 
         MultipartFile file = save.getProfilePhotoFile();
         if (file != null) {
-
-            try {
-                String base64str = Base64Util.encode(file.getBytes());
-                String fileId = uploadMultipartFileService.uploadFile(file);
-                personnel.setProfilePhoto(fileId);
-            } catch (Exception e) {
-                throw new BusinessException("上传头像失败", e);
-            }
+            List<UploadFileBase64> uploadFiles = uploadFileService.convertFile(true, file);
+            String fileId = uploadFileService.uploadAttachment(Personnel.class, id, uploadFiles, 1);
+            personnel.setProfilePhoto(fileId);
         }
 
         save(personnel);
@@ -69,6 +70,11 @@ public class PersonnelService extends ServiceSupport<Personnel> {
             sysUserService.updatePersonnelAccount(id, currentAccount);
         }
 
+        MultipartFile file = update.getProfilePhotoFile();
+        List<UploadFileBase64> uploadFiles = file == null ? null : uploadFileService.convertFile(true, file);
+        String fileId = uploadFileService.uploadAttachment(Personnel.class, id, uploadFiles, origin.getProfilePhoto(), update.getProfilePhoto(), 1);
+
+        update.setProfilePhoto(fileId);
         SimpleBeanCopyUtil.simpleCopy(update, origin);
         update(origin);
     }
@@ -79,7 +85,10 @@ public class PersonnelService extends ServiceSupport<Personnel> {
         if (origin == null) {
             throw new BusinessException("找不到需要修改的人员数据");
         }
+        // 删除附件
+        uploadFileService.uploadAttachment(Personnel.class, id, null, origin.getProfilePhoto(), null, 100);
         sysUserService.removePersonnelAccount(id);
         removeByPrimaryKey(id);
     }
+
 }

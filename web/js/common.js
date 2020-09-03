@@ -356,7 +356,7 @@ var baseUrl = "http://localhost:19000";
         setToken: function (token) {
             window.localStorage.setItem("jwt", token);
             // 定时刷新
-            setTimeout($.refreshToken, 3000000);
+            setTimeout($.refreshToken, 1000000);
         },
         getToken: function () {
             return window.localStorage.getItem("jwt");

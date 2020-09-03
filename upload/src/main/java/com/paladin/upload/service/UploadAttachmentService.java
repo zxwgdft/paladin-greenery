@@ -11,13 +11,16 @@ import com.paladin.framework.utils.UUIDUtil;
 import com.paladin.framework.utils.convert.DateFormatUtil;
 import com.paladin.upload.model.UploadAttachment;
 import com.paladin.upload.service.dto.FileCreateParam;
+import com.paladin.upload.service.dto.FileFrom;
+import com.paladin.upload.service.dto.MergeFileBase64;
+import com.paladin.upload.service.dto.UploadFileBase64;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.PostConstruct;
@@ -56,27 +59,6 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
         maxFileByteSize = maxFileSize * 1024 * 1024;
     }
 
-    /**
-     * 创建附件
-     */
-    public UploadAttachment createAttachment(MultipartFile file) {
-        return createFile(new FileCreateParam(file, null));
-    }
-
-    /**
-     * 创建附件
-     */
-    public UploadAttachment createAttachment(MultipartFile file, String filename) {
-        return createFile(new FileCreateParam(file, filename));
-    }
-
-    /**
-     * 创建附件
-     */
-    public UploadAttachment createAttachment(String base64str, String filename) {
-        return createFile(new FileCreateParam(base64str, filename));
-    }
-
 
     /**
      * 图片限制参数,如果不想限制可以设置大点
@@ -88,53 +70,11 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
     private int min_thumbnail_height = 200;
 
     /**
-     * 创建图片与缩略图
-     */
-    public UploadAttachment createPictureAndThumbnail(MultipartFile file) {
-        return createPictureAndThumbnail(new FileCreateParam(file, null));
-    }
-
-    /**
-     * 创建图片与缩略图
-     */
-    public UploadAttachment createPictureAndThumbnail(MultipartFile file, String filename) {
-        return createPictureAndThumbnail(new FileCreateParam(file, filename));
-    }
-
-    /**
-     * 创建图片与缩略图
-     */
-    public UploadAttachment createPictureAndThumbnail(MultipartFile file, String filename, Integer thumbnailWidth, Integer thumbnailHeight) {
-        FileCreateParam param = new FileCreateParam(file, filename);
-        param.setThumbnailWidth(thumbnailWidth);
-        param.setThumbnailHeight(thumbnailHeight);
-        return createPictureAndThumbnail(param);
-    }
-
-    /**
-     * 创建图片与缩略图
-     */
-    public UploadAttachment createPictureAndThumbnail(String base64str, String filename) {
-        return createPictureAndThumbnail(new FileCreateParam(base64str, filename));
-    }
-
-    /**
-     * 创建图片与缩略图
-     */
-    public UploadAttachment createPictureAndThumbnail(String base64str, String filename, Integer thumbnailWidth, Integer thumbnailHeight) {
-        FileCreateParam param = new FileCreateParam(base64str, filename);
-        param.setThumbnailWidth(thumbnailWidth);
-        param.setThumbnailHeight(thumbnailHeight);
-        return createPictureAndThumbnail(param);
-    }
-
-    /**
      * 创建图片与缩略图，如果开启限制图片，过大图片会被压缩，压缩策略为根据图片大小与基准大小比例作为缩放大小进行缩放
      *
      * @param param 文件创建参数
-     * @return
      */
-    public UploadAttachment createPictureAndThumbnail(FileCreateParam param) {
+    public UploadAttachment createPictureAndThumbnail(FileCreateParam param, FileFrom fileFrom) {
         long size = param.getSize();
 
         if (size > max_picture_size) {
@@ -157,17 +97,13 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
         param.setThumbnailHeight(Math.min(thumbnailHeight, max_thumbnail_height));
         param.setThumbnailWidth(Math.min(thumbnailWidth, max_thumbnail_width));
         param.setNeedThumbnail(true);
-        return createFile(param);
+        return createFile(param, fileFrom);
     }
-
 
     /**
      * 创建文件附件
-     *
-     * @param param
-     * @return
      */
-    public UploadAttachment createFile(FileCreateParam param) {
+    public UploadAttachment createFile(FileCreateParam param, FileFrom fileFrom) {
         if (param.getSize() > maxFileByteSize) {
             throw new BusinessException("上传文件不能大于" + maxFileSize + "MB");
         }
@@ -176,6 +112,9 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
         attachment.setSize(param.getSize());
         attachment.setCreateTime(new Date());
         attachment.setDeleted(false);
+        attachment.setFromService(fileFrom.getFromService());
+        attachment.setBusiness(fileFrom.getBusiness());
+        attachment.setBusinessId(fileFrom.getBusinessId());
 
         String filename = param.getFilename();
         if (filename != null && filename.length() > 0) {
@@ -212,12 +151,6 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
 
     /**
      * 保存文件附件
-     *
-     * @param param
-     * @param attachment
-     * @param subPath
-     * @return
-     * @throws IOException
      */
     private UploadAttachment saveFile(FileCreateParam param, UploadAttachment attachment, String subPath) throws IOException {
         String filename = attachment.getId();
@@ -318,69 +251,37 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
 
     /**
      * 获取文件附件记录
-     *
-     * @param ids
-     * @returns
      */
     public List<UploadAttachment> getAttachments(String... ids) {
+        if (ids == null || ids.length == 0) {
+            return new ArrayList<>();
+        }
         return searchAll(new Condition(UploadAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)));
     }
 
-    /**
-     * 删除附件
-     *
-     * @param ids
-     * @return
-     */
-    public int deleteAttachments(String... ids) {
-        if (ids != null && ids.length > 0) {
-            Example example = buildOrCreateExample(new Condition(UploadAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)), modelType, false);
-            UploadAttachment attachment = new UploadAttachment();
-            attachment.setDeleted(true);
-            attachment.setDeleteTime(new Date());
-            return getSqlMapper().updateByExampleSelective(attachment, example);
-        }
-        return 0;
-    }
-
-
-    /**
-     * 合并附件
-     *
-     * @param newIds
-     * @param attachmentFiles
-     * @return
-     */
-    public List<UploadAttachment> mergeAttachments(String newIds, MultipartFile... attachmentFiles) {
-        return replaceAndMergeAttachments(null, newIds, attachmentFiles);
-    }
 
     /**
      * 替换和合并附件
      * <p>
      * 会删除附件，所以需要调用该方法时需要考虑是否要添加事务
-     *
-     * @param originIds
-     * @param newIds
-     * @param attachmentFiles
-     * @return
      */
-    public List<UploadAttachment> replaceAndMergeAttachments(String originIds, String newIds, MultipartFile... attachmentFiles) {
-        List<UploadAttachment> newAttList = null;
-        if (newIds != null && newIds.length() != 0) {
-            newAttList = getAttachments(newIds.split(","));
-        }
+    @Transactional
+    public List<UploadAttachment> mergeAttachments(MergeFileBase64 mergeFile) {
 
-        if (newAttList == null) {
-            newAttList = new ArrayList<>(attachmentFiles != null ? attachmentFiles.length : 0);
-        }
+        // 当前有效附件
+        String[] currentIds = mergeFile.getCurrentIds();
 
+        List<UploadAttachment> currentAttList = (currentIds != null && currentIds.length > 0) ?
+                getAttachments(currentIds) : new ArrayList<>();
+
+
+        // 被替换需要删除附件
         ArrayList<String> deleteIdList = new ArrayList<>();
-        if (originIds != null && originIds.length() > 0) {
-            String[] originIdArray = originIds.split(",");
-            for (String oid : originIdArray) {
+        String[] originIds = mergeFile.getOriginIds();
+        if (originIds != null && originIds.length > 0) {
+            for (String oid : originIds) {
                 boolean del = true;
-                for (UploadAttachment att : newAttList) {
+                for (UploadAttachment att : currentAttList) {
                     if (att.getId().equals(oid)) {
                         del = false;
                         break;
@@ -396,34 +297,40 @@ public class UploadAttachmentService extends ServiceSupport<UploadAttachment> {
             }
         }
 
-        if (attachmentFiles != null) {
-            for (MultipartFile file : attachmentFiles) {
+        // 上传附件
+        List<UploadFileBase64> uploadFiles = mergeFile.getUploadFiles();
+        if (uploadFiles != null) {
+            for (UploadFileBase64 file : uploadFiles) {
                 if (file != null) {
-                    UploadAttachment a = createAttachment(file);
-                    newAttList.add(a);
+                    FileCreateParam param = new FileCreateParam(file.getBase64str(), file.getFilename());
+                    if (file.isNeedThumbnail()) {
+                        param.setThumbnailWidth(file.getThumbnailWidth());
+                        param.setThumbnailHeight(file.getThumbnailHeight());
+                        currentAttList.add(createPictureAndThumbnail(param, mergeFile));
+                    } else {
+                        currentAttList.add(createFile(param, mergeFile));
+                    }
                 }
             }
         }
 
-        return newAttList;
+        return currentAttList;
     }
 
     /**
-     * 拼接附件ID字符串
-     *
-     * @param attachments
-     * @return
+     * 删除附件
      */
-    public String splicingAttachmentId(List<UploadAttachment> attachments) {
-        if (attachments != null && attachments.size() > 0) {
-            String str = "";
-            for (UploadAttachment attachment : attachments) {
-                str += attachment.getId() + ",";
-            }
-            return str.substring(0, str.length() - 1);
+    public int deleteAttachments(String... ids) {
+        if (ids != null && ids.length > 0) {
+            Example example = buildOrCreateExample(new Condition(UploadAttachment.FIELD_ID, QueryType.IN, Arrays.asList(ids)), modelType, false);
+            UploadAttachment attachment = new UploadAttachment();
+            attachment.setDeleted(true);
+            attachment.setDeleteTime(new Date());
+            return getSqlMapper().updateByExampleSelective(attachment, example);
         }
-        return null;
+        return 0;
     }
+
 
     /**
      * 清理删除的附件文件

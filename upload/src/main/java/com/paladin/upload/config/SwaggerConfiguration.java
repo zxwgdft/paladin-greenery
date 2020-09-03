@@ -1,6 +1,6 @@
 package com.paladin.upload.config;
 
-import com.paladin.framework.spring.DevCondition;
+import com.paladin.framework.spring.DevelopCondition;
 import com.paladin.framework.swagger.CommonDocketFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -13,7 +13,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @since 2019/12/30
  */
 @Configuration
-@Conditional(DevCondition.class)
+@Conditional(DevelopCondition.class)
 @EnableSwagger2
 public class SwaggerConfiguration {
 

@@ -1,6 +1,6 @@
 package com.paladin.gateway.swagger;
 
-import com.paladin.framework.spring.DevCondition;
+import com.paladin.framework.spring.DevelopCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import springfox.documentation.swagger.web.*;
 
-@Conditional(DevCondition.class)
+@Conditional(DevelopCondition.class)
 @RestController
 @RequestMapping("/swagger-resources")
 public class SwaggerHandler {
+
     @Autowired(required = false)
     private SecurityConfiguration securityConfiguration;
     @Autowired(required = false)

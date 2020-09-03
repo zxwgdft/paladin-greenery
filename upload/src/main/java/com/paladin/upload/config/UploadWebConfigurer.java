@@ -1,10 +1,13 @@
 package com.paladin.upload.config;
 
+import com.paladin.framework.spring.DevelopCondition;
 import com.paladin.framework.spring.web.DateFormatter;
 import com.paladin.upload.core.UploadSecurityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -16,13 +19,29 @@ import java.util.Date;
 @Configuration
 public class UploadWebConfigurer implements WebMvcConfigurer {
 
+    @Value("${attachment.upload-folder}")
+    private String filePath;
+
+    @Autowired
+    private Environment environment;
+
     @Autowired
     private UploadSecurityManager webSecurityManager;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        String filePath = this.filePath;
+
+        if (!filePath.startsWith("file:")) {
+            filePath = "file:" + filePath;
+        }
+
+        registry.addResourceHandler("/static/file/**").addResourceLocations(filePath);
+
+        if (DevelopCondition.isDevelop(environment)) {
+            registry.addResourceHandler("/swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+            registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        }
     }
 
 

@@ -1844,7 +1844,17 @@ var _attachmentFieldBuilder = new _FieldBuilder("ATTACHMENT", {
 
         var files = data[filename];
         if (files && !$.isArray(files)) {
-            data[filename] = [files];
+            files = [files];
+            data[filename] = files;
+        }
+
+        if (files) {
+            files.forEach(function (f) {
+                f.url = baseUrl + f.url;
+                if (f.thumbnailUrl) {
+                    f.thumbnailUrl = baseUrl + f.thumbnailUrl;
+                }
+            });
         }
 
         if (v) {

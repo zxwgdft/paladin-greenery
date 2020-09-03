@@ -1,6 +1,6 @@
 package com.paladin.gateway.swagger;
 
-import com.paladin.framework.spring.DevCondition;
+import com.paladin.framework.spring.DevelopCondition;
 import lombok.AllArgsConstructor;
 import org.springframework.cloud.gateway.config.GatewayProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author Sywd
  */
 @Component
-@Conditional(DevCondition.class)
+@Conditional(DevelopCondition.class)
 @Primary
 @AllArgsConstructor
 public class SwaggerProvider implements SwaggerResourcesProvider {

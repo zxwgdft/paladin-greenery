@@ -23,6 +23,9 @@ public class OpenPersonnel {
     @ApiModelProperty(value = "身份证件号码")
     private String identificationNo;
 
+    @ApiModelProperty(value = "账号")
+    private String account;
+
     @ApiModelProperty(value = "姓名")
     private String name;
 
@@ -55,5 +58,8 @@ public class OpenPersonnel {
 
     @ApiModelProperty(value = "籍贯")
     private String nativePlace;
+
+    @ApiModelProperty(value = "用户图片资源")
+    private FileResource profilePhotoFile;
 
 }

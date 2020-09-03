@@ -73,8 +73,10 @@ public class UploadConfiguration {
         String folder = env.getProperty("attachment.upload-folder");
         String visitUrl = env.getProperty("attachment.visit-base-url");
 
+        String baseUrl = "/upload" + visitUrl;
+
         FileStoreService fileStoreService = new LocalFileStoreService(folder) {
-            
+
 //            @Override
 //            public String getStoreType() {
 //                return "local";
@@ -82,7 +84,7 @@ public class UploadConfiguration {
 
             @Override
             public String getFileUrl(String relativePath) {
-                return visitUrl + relativePath;
+                return baseUrl + relativePath;
             }
         };
 
