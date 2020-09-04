@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 /**
  * @author TontoZhou
@@ -20,20 +19,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Configuration
 public class UploadConfiguration {
 
-    /**
-     * 启用异常统一处理
-     *
-     * @return
-     */
-    @Bean
-    public HandlerExceptionResolver getHandlerExceptionResolver() {
-        return new UploadHandlerExceptionResolver();
-    }
 
     /**
      * 数据容器管理器
-     *
-     * @return
      */
     @Bean
     public DataContainerManager getDataContainerManager() {
@@ -47,7 +35,6 @@ public class UploadConfiguration {
     public SpringBeanHelper springBeanHolder() {
         return new SpringBeanHelper();
     }
-
 
     /**
      * service支持管理器

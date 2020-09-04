@@ -49,14 +49,6 @@ spring:
           uri: lb://greenery-upload
           filters:
             - StripPrefix=1
-        - predicates:
-            - Path=/upload/**
-          uri: lb://greenery-upload
-          filters:
-            - name: Auth
-              args:
-                jwtBase64Key: rkoNCPXJT0F8RvqvAcW6F41ygXE7TX8oZqi3FMY5rMHe+Lt0JdLRkWEU1H47RJLfm2mgvVmocs2vPt8m/8td0A==
-
 
 
 paladin:
