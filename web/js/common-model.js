@@ -1933,6 +1933,9 @@ var _attachmentFieldBuilder = new _FieldBuilder("ATTACHMENT", {
                     });
                     fileCount++;
                 });
+                model.formBody.attr('enctype','multipart/form-data');
+            } else {
+                model.formBody.attr('enctype','application/x-www-form-urlencoded');
             }
 
             if (fileCount > maxFileCount) {
