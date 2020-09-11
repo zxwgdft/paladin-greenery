@@ -1,6 +1,16 @@
 server:
   port: 19000
 
+management:
+  health:
+    redis:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: gateway
+
+
 spring:
   application:
     name: greenery-gateway
@@ -8,6 +18,15 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
+  datasource:
+    name: greenery_gateway
+    url: jdbc:mysql://172.16.16.120:3306/greenery_gateway?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8
+    username: netin
+    password: 123456
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 15
+      maximum-pool-size: 15
   cloud:
     nacos:
       server-addr: 172.16.16.120:8848
@@ -50,6 +69,9 @@ spring:
           filters:
             - StripPrefix=1
 
+ribbon:
+  ReadTimeout: 6000
+  ConnectTimeout: 6000
 
 paladin:
   cors-enabled: true

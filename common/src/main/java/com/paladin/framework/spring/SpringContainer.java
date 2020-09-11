@@ -16,7 +16,6 @@ public interface SpringContainer {
         return true;
     }
 
-    ;
 
     /**
      * 所有{@link SpringContainer}的实例的{@code initialize()}方法执行后执行
@@ -26,8 +25,6 @@ public interface SpringContainer {
     default boolean afterInitialize() {
         return true;
     }
-
-    ;
 
     /**
      * 执行顺序
