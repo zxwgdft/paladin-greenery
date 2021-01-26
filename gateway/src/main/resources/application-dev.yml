@@ -31,8 +31,6 @@ spring:
     nacos:
       server-addr: 172.16.16.120:8848
     gateway:
-      locator:
-        enabled: true
       globalcors:
         cors-configurations:
           '[/**]':
