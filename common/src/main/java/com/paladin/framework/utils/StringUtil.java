@@ -1,7 +1,9 @@
 package com.paladin.framework.utils;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class StringUtil {
 
@@ -127,6 +129,49 @@ public class StringUtil {
         }
 
         return obj.toString();
+    }
+
+    /**
+     * 拼接字符串转int数组
+     */
+    public static int[] stringToIntArray(String str) {
+        return stringToIntArray(str, ",");
+    }
+
+    /**
+     * 拼接字符串转int数组
+     */
+    public static int[] stringToIntArray(String str, String regex) {
+        if (str == null || str.length() == 0) return null;
+        String[] sArr = str.split(regex);
+        int[] iArr = new int[sArr.length];
+        for (int i = 0; i < sArr.length; i++) {
+            String s = sArr[i];
+            iArr[i] = Integer.valueOf(s);
+        }
+        return iArr;
+    }
+
+
+    /**
+     * 拼接字符串转int集合
+     */
+    public static List<Integer> stringToIntList(String str) {
+        return stringToIntList(str, ",");
+    }
+
+    /**
+     * 拼接字符串转int集合
+     */
+    public static List<Integer> stringToIntList(String str, String regex) {
+        if (str == null || str.length() == 0) return null;
+        String[] sArr = str.split(regex);
+        List<Integer> list = new ArrayList<>(sArr.length);
+        for (int i = 0; i < sArr.length; i++) {
+            String s = sArr[i];
+            list.add(Integer.valueOf(s));
+        }
+        return list;
     }
 
 

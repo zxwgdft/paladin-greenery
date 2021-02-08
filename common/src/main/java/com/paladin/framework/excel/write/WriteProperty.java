@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@interface WriteProperty {
+public @interface WriteProperty {
 
     /**
      * EXCEL列序号

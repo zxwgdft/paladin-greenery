@@ -1,5 +1,6 @@
 package com.paladin.framework.security;
 
+
 import io.jsonwebtoken.Claims;
 
 /**

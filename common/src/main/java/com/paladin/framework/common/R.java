@@ -19,7 +19,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
-@ApiModel(description = "返回信息")
+@ApiModel(description = "响应信息")
 public class R<T> implements Serializable {
 
     @ApiModelProperty(value = "CODE", required = true)
@@ -30,6 +30,9 @@ public class R<T> implements Serializable {
     private String message;
     @ApiModelProperty("具体业务数据")
     private T data;
+
+    private R() {
+    }
 
     private R(IResultCode resultCode) {
         this(resultCode, resultCode.getMessage(), null);

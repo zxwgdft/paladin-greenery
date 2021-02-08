@@ -3,12 +3,11 @@ package com.paladin.framework.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.paladin.framework.common.BaseModel;
+import com.paladin.framework.common.DeletedModel;
 import com.paladin.framework.exception.BusinessException;
 import com.paladin.framework.exception.SystemException;
 import com.paladin.framework.exception.SystemExceptionCode;
 import com.paladin.framework.mybatis.CustomMapper;
-import com.paladin.framework.security.UserSession;
-import com.paladin.framework.security.WebSecurityManager;
 import com.paladin.framework.utils.convert.SimpleBeanCopyUtil;
 import com.paladin.framework.utils.convert.SimpleConvertUtil;
 import com.paladin.framework.utils.reflect.Entity;
@@ -59,6 +58,7 @@ public abstract class ServiceSupport<Model> {
 
     protected Condition[] commonConditions; // 通用查询条件
     protected boolean isBaseModel = false; // 是否基于基础模型
+    protected boolean isDeletedModel = false; // 是否逻辑删除模型
 
     protected String[] ignoreSelections; // 列表查询时忽略字段（例如某些大文本，并不需要在列表查询中返回）
 
@@ -79,9 +79,14 @@ public abstract class ServiceSupport<Model> {
      * 初始化
      */
     public void init() {
-        if (BaseModel.class.isAssignableFrom(modelType)) {
+
+        if (DeletedModel.class.isAssignableFrom(modelType)) {
+            isBaseModel = true;
+            isDeletedModel = true;
+        } else if (BaseModel.class.isAssignableFrom(modelType)) {
             isBaseModel = true;
         }
+
 
         Class<?> type = this.getClass();
 
@@ -129,8 +134,8 @@ public abstract class ServiceSupport<Model> {
         }
 
         // 如果是逻辑删除模型，则所有查询中需要过滤删除数据
-        if (isBaseModel) {
-            commonConditionList.add(new Condition(BaseModel.FIELD_DELETED, QueryType.EQUAL, BaseModel.BOOLEAN_NO));
+        if (isDeletedModel) {
+            commonConditionList.add(new Condition(DeletedModel.FIELD_DELETED, QueryType.EQUAL, false));
         }
 
         this.commonConditions = commonConditionList.toArray(new Condition[commonConditionList.size()]);
@@ -872,10 +877,10 @@ public abstract class ServiceSupport<Model> {
      * @param pk 主键
      */
     public boolean removeByPrimaryKey(Object pk) {
-        if (isBaseModel) {
+        if (isDeletedModel) {
             Model model = getSqlMapper().selectByPrimaryKey(pk);
             if (model != null) {
-                ((BaseModel) model).setDeleted(true);
+                ((DeletedModel) model).setDeleted(true);
                 updateModelWrap(model);
                 return getSqlMapper().updateByPrimaryKey(model) > 0;
             }
@@ -910,10 +915,10 @@ public abstract class ServiceSupport<Model> {
      */
     public int remove(Object searchParam, boolean simple) {
         Example example = buildOrCreateExample(searchParam, modelType, simple);
-        if (isBaseModel) {
+        if (isDeletedModel) {
             try {
                 Model model = modelType.newInstance();
-                ((BaseModel) model).setDeleted(true);
+                ((DeletedModel) model).setDeleted(true);
                 updateModelWrap(model);
                 return getSqlMapper().updateByExampleSelective(model, example);
             } catch (InstantiationException | IllegalAccessException e) {
@@ -932,7 +937,7 @@ public abstract class ServiceSupport<Model> {
     public void updateModelWrap(Model model) {
         if (isBaseModel) {
             Date now = new Date();
-            UserSession userSession = WebSecurityManager.getCurrentUserSession();
+            UserSession userSession = UserSession.getCurrentUserSession();
             String uid = userSession == null ? "" : userSession.getUserId();
             BaseModel baseModel = (BaseModel) model;
             baseModel.setUpdateTime(now);
@@ -948,14 +953,16 @@ public abstract class ServiceSupport<Model> {
     public void saveModelWrap(Model model) {
         if (isBaseModel) {
             Date now = new Date();
-            UserSession userSession = WebSecurityManager.getCurrentUserSession();
+            UserSession userSession = UserSession.getCurrentUserSession();
             String uid = userSession == null ? "" : userSession.getUserId();
             BaseModel baseModel = (BaseModel) model;
             baseModel.setCreateTime(now);
             baseModel.setCreateBy(uid);
             baseModel.setUpdateTime(now);
             baseModel.setUpdateBy(uid);
-            baseModel.setDeleted(false);
+            if (isDeletedModel) {
+                ((DeletedModel) baseModel).setDeleted(false);
+            }
         }
     }
 
